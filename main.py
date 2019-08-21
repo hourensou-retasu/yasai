@@ -3,23 +3,20 @@
 from datetime import datetime
 from reserve_dakoku import reserve_dakoku
 from execute_dakoku import execute_dakoku
-from multiprocessing import Manager, Value, Process
+from threading import Thread
+from collections import deque
 
 
 def main():
-    with Manager() as manager:
         RD = reserve_dakoku()
         ED = execute_dakoku()
 
-        dakoku_queue = manager.list()
-        reserve_process = Process(target=RD.reserve_dakoku, args=[dakoku_queue])
-        execute_process = Process(target=ED.execute_dakoku, args=[dakoku_queue])
-
-        reserve_process.start()
-        execute_process.start()
-
-        reserve_process.join()
-        execute_process.join()
+        dakoku_queue = deque([])
+        reserve_thread = Thread(target=RD.reserve_dakoku, args=(dakoku_queue,))
+        execute_thread = Thread(target=ED.execute_dakoku, args=(dakoku_queue,))
+        
+        reserve_thread.start()
+        execute_thread.start()
 
 
 if __name__ == "__main__":
