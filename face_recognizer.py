@@ -4,13 +4,13 @@ import numpy as np
 import cv2
 from PIL import Image
 import face_recognition
-from firestoreAPI import FireStore
+from firestoreAPI import FireStoreDB
 
 class FaceRecognizer:
 
     def __init__(self):
         self.video = cv2.VideoCapture(0)
-        self.db = FireStore().db
+        self.db = FireStoreDB().db
         self.known_face_names, self.known_face_features = self.fetch_known_faces()
 
     def authorize(self, num_trial=100, tolerance=0.5):
