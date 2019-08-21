@@ -13,13 +13,13 @@ def main():
 
         dakoku_queue = manager.list()
         reserve_process = Process(target=RD.reserve_dakoku, args=[dakoku_queue])
-        observe_process = Process(target=ED.execute_dakoku, args=[dakoku_queue])
+        execute_process = Process(target=ED.execute_dakoku, args=[dakoku_queue])
 
         reserve_process.start()
-        observe_process.start()
+        execute_process.start()
 
         reserve_process.join()
-        observe_process.join()
+        execute_process.join()
 
 
 if __name__ == "__main__":

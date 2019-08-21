@@ -20,11 +20,11 @@ class reserve_dakoku:
         self.dakoku_message_dict = {
             0: 'おはようございます',
             1: 'おつかれさまでした',
-            2: 'きゅうけいどうぞ',
+            2: 'きゅうけいいってらっしゃい',
             3: 'がんばってください'
         }
 
-    def reserve_dakoku(self):
+    def reserve_dakoku(self, dakoku_queue):
 
         while True:
             print("Say something ...")
@@ -61,8 +61,10 @@ class reserve_dakoku:
                         name = self.detect_unknown_visitor()
 
                         # また失敗したとき
-                        if name is None or name not in names:
+                        if name is None:
                             jtalk('登録されたユーザを認識できませんでした')
+                        
+                        # 名前が登録ユーザーでないとき
 
                     dakoku_queue.append(name, dakoku_attr)            
 
@@ -73,7 +75,7 @@ class reserve_dakoku:
                 print("Could not request results from Google Speech Recognition service; {0}".format(e))
 
     def detect_unknown_visitor(self):
-        print("Say something ...")
+        print("Say your name ...")
 
         with self.mic as source:
             self.r.adjust_for_ambient_noise(source)  # 雑音対策
@@ -84,6 +86,14 @@ class reserve_dakoku:
         try:
             recog_text = self.r.recognize_google(audio, language='ja-JP')
             print(recog_text)
+            return recog_text
+
+        # 以下は認識できなかったときに止まらないように。
+        except sr.UnknownValueError:
+            print("could not understand audio")
+        except sr.RequestError as e:
+            print(
+                "Could not request results from Google Speech Recognition service; {0}".format(e))
 
 def main():
     reserve_dakoku()
