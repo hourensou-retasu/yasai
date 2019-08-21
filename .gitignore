@@ -1,2 +1,5 @@
 venv
 .idea
+conf/firebase.json
+__pycache__
+
