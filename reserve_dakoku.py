@@ -4,11 +4,15 @@ import speech_recognition as sr
 import re
 import numpy as np
 from jtalk import jtalk
+import face_recognizer
+import time
 
 class reserve_dakoku:
     def __init__(self):
         self.r = sr.Recognizer()
         self.mic = sr.Microphone()
+
+        self.fr = face_recognizer.FaceRecognizer()
 
         self.dakoku_patterns = [
             '.*?(おはよう).*', 
@@ -22,6 +26,13 @@ class reserve_dakoku:
             1: 'おつかれさまでした',
             2: 'きゅうけいいってらっしゃい',
             3: 'がんばってください'
+        }
+
+        self.dakoku_attr_str = {
+            0: '出勤',
+            1: '退勤',
+            2: '休憩開始',
+            3: '休憩終了'
         }
 
     def reserve_dakoku(self, dakoku_queue):
@@ -43,7 +54,7 @@ class reserve_dakoku:
             
                 # 打刻WORDにマッチ
                 if any(dakoku_results):
-                    name = face_recog()
+                    user = fr.authorize()
                     
                     # マッチした打刻種類の最初のindexを取得 0:出勤 1:退勤 2:休憩始 3:休憩終
                     dakoku_attr = None
@@ -54,19 +65,31 @@ class reserve_dakoku:
                             dakoku_attr = index
                             break
                             
-                    message = self.dakoku_message_dict[dakoku_attr] + ('、どちらさまですか' if name is None else '、' + name + 'さん')
+                    message = self.dakoku_message_dict[dakoku_attr] + ('、どちらさまですか' if user is None else '、' + user['last_name_kana'] + 'さん')
                     jtalk(message)
 
-                    if name is None:
-                        name = self.detect_unknown_visitor()
+                    if user is None:
+                        user = self.detect_unknown_visitor()
 
                         # また失敗したとき
-                        if name is None:
+                        if user is None:
                             jtalk('登録されたユーザを認識できませんでした')
                         
                         # 名前が登録ユーザーでないとき
 
-                    dakoku_queue.append(name, dakoku_attr)            
+                    dakoku_queue.append({'employee_id':user['employee_id'], 'dakoku_attr':dakoku_attr, 'time':time.time()})
+
+                # 前回打刻されたユーザを除き、登録ユーザ名が発話に含まれるか否か
+                else:
+                    for user in users:
+                        if user['employee_id'] != dakoku_queue[-1]['employee_id'] and user['last_name_kana'] in recog_text:
+                            dakoku_queue[-1] = {{'employee_id': user['employee_id'],
+                                                 'dakoku_attr': dakoku_queue[-1]['dakoku_attr'], 'time': time.time()}}
+                                          
+                            message = '{}さんの{}を打刻しました'.format(
+                                user['last_name_kana'], self.dakoku_attr_str[dakoku_queue[-1]['dakoku_attr']])
+                            jtalk(message)
+
 
             # 以下は認識できなかったときに止まらないように。
             except sr.UnknownValueError:
