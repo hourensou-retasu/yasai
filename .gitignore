@@ -1,2 +1,6 @@
 venv
 node_modules
+.idea
+conf/firebase.json
+__pycache__
+out.wav
