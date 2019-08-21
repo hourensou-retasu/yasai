@@ -6,13 +6,16 @@ import numpy as np
 from jtalk import jtalk
 import face_recognizer
 import time
+from firestoreAPI import FireStoreDB
 
 class reserve_dakoku:
     def __init__(self):
         self.r = sr.Recognizer()
         self.mic = sr.Microphone()
 
-        self.fr = face_recognizer.FaceRecognizer()
+        self.user_db = FireStoreDB().db
+
+        self.fr = face_recognizer.FaceRecognizer(self.user_db)
 
         self.dakoku_patterns = [
             '.*?(おはよう).*', 
@@ -81,6 +84,9 @@ class reserve_dakoku:
 
                 # 前回打刻されたユーザを除き、登録ユーザ名が発話に含まれるか否か
                 else:
+                    users_ref = self.db.collection('users')
+                    users = [doc.to_dict() for doc in users_ref.get()]
+
                     for user in users:
                         if user['employee_id'] != dakoku_queue[-1]['employee_id'] and user['last_name_kana'] in recog_text:
                             dakoku_queue[-1] = {{'employee_id': user['employee_id'],
