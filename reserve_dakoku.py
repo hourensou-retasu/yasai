@@ -57,7 +57,7 @@ class reserve_dakoku:
             
                 # 打刻WORDにマッチ
                 if any(dakoku_results):
-                    user = fr.authorize()
+                    user = self.fr.authorize()
                     
                     # マッチした打刻種類の最初のindexを取得 0:出勤 1:退勤 2:休憩始 3:休憩終
                     dakoku_attr = None
@@ -84,18 +84,18 @@ class reserve_dakoku:
 
                 # 前回打刻されたユーザを除き、登録ユーザ名が発話に含まれるか否か
                 else:
-                    users_ref = self.db.collection('users')
+                    users_ref = self.user_db.collection('users')
                     users = [doc.to_dict() for doc in users_ref.get()]
 
                     for user in users:
-                        if user['employee_id'] != dakoku_queue[-1]['employee_id'] and user['last_name_kana'] in recog_text:
-                            dakoku_queue[-1] = {{'employee_id': user['employee_id'],
-                                                 'dakoku_attr': dakoku_queue[-1]['dakoku_attr'], 'time': time.time()}}
+                        if len(dakoku_queue):
+                            if user['employee_id'] != dakoku_queue[-1]['employee_id'] and user['last_name_kana'] in recog_text:
+                                dakoku_queue[-1] = {{'employee_id': user['employee_id'],
+                                                     'dakoku_attr': dakoku_queue[-1]['dakoku_attr'], 'time': time.time()}}
                                           
-                            message = '{}さんの{}を打刻しました'.format(
-                                user['last_name_kana'], self.dakoku_attr_str[dakoku_queue[-1]['dakoku_attr']])
-                            jtalk(message)
-
+                                message = '{}さんの{}を打刻しました'.format(
+                                    user['last_name_kana'], self.dakoku_attr_str[dakoku_queue[-1]['dakoku_attr']])
+                                jtalk(message)
 
             # 以下は認識できなかったときに止まらないように。
             except sr.UnknownValueError:
