@@ -30,7 +30,20 @@ class freeeAPI:
   def __doPOST(self, url, data):
     res = requests.post(url, headers=self.headers, json=data)
     return res.json()
-  
+
+  def __timeClocks(self, employeeID, clockType):
+    date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    url = self.APIbaseURL + f"/employees/{ employeeID }/time_clocks"
+    data = {
+      "company_id": self.companyID,
+      "type": clockType,
+      "base_date": date
+    }
+
+    res = self.__doPOST(url, data)
+    return res
+
 
   def getCompanyID(self):
     return self.companyID
@@ -45,30 +58,16 @@ class freeeAPI:
     return res
 
   def clockIn(self, employeeID):
-    date = datetime.datetime.now().strftime("%Y-%m-%d")
-
-    url = self.APIbaseURL + f"/employees/{ employeeID }/time_clocks"
-    data = {
-      "company_id": self.companyID,
-      "type": "clock_in",
-      "base_date": date
-    }
-
-    res = self.__doPOST(url, data)
-    return res
+    return self.__timeClocks(employeeID, "clock_in")
 
   def clockOut(self, employeeID):
-    date = datetime.datetime.now().strftime("%Y-%m-%d")
+    return self.__timeClocks(employeeID, "clock_out")
 
-    url = self.APIbaseURL + f"/employees/{ employeeID }/time_clocks"
-    data = {
-      "company_id": self.companyID,
-      "type": "clock_out",
-      "base_date": date
-    }
+  def breakBegin(self, employeeID):
+    return self.__timeClocks(employeeID, "break_begin")
 
-    res = self.__doPOST(url, data)
-    return res
+  def breakEnd(self, employeeID):
+    return self.__timeClocks(employeeID, "break_end")
 
 
 if __name__ == "__main__":
