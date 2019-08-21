@@ -12,5 +12,11 @@
 ## clockIn(employee_id)
 指定された従業員の出勤打刻を行います。
 
-## clockOut()
+## clockOut(employee_id)
 指定された従業員の退勤打刻を行います。
+
+## breakBegin(employee_id)
+指定された従業員の休憩開始打刻を行います。
+
+## breakEnd(employee_id)
+指定された従業員の休憩終了打刻を行います。
