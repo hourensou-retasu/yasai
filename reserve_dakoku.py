@@ -66,7 +66,11 @@ class reserve_dakoku:
                         
                         # 名前が登録ユーザーでないとき
 
-                    dakoku_queue.append(name, dakoku_attr)            
+                    dakoku_queue.append(name, dakoku_attr)
+
+                elif any([user_name in recog_text for user_name in user_names if dakoku_queue[-1]['name']]):
+                    for user_name in user_names:
+                               
 
             # 以下は認識できなかったときに止まらないように。
             except sr.UnknownValueError:
