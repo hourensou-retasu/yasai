@@ -2,4 +2,4 @@ venv
 .idea
 conf/firebase.json
 __pycache__
-
+out.wav
