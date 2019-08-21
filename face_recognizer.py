@@ -4,16 +4,13 @@ import numpy as np
 import cv2
 from PIL import Image
 import face_recognition
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
-
+from firestoreAPI import FireStore
 
 class FaceRecognizer:
 
     def __init__(self):
         self.video = cv2.VideoCapture(0)
-        self.db = self._init_db()
+        self.db = FireStore().db
         self.known_face_names, self.known_face_features = self.fetch_known_faces()
 
     def authorize(self, num_trial=100, tolerance=0.5):
@@ -56,15 +53,6 @@ class FaceRecognizer:
             return detected_name
         else:
             return None
-
-    @staticmethod
-    def _init_db():
-        try:
-            cred = credentials.Certificate('conf/firebase.json')
-            firebase_admin.initialize_app(cred)
-        except:
-            pass
-        return firestore.client()
 
     def quit(self):
         self.video.release()
