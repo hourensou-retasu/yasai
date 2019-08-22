@@ -54,6 +54,9 @@ class reserve_dakoku:
                     audio, language='ja-JP', show_all=True)
                 print(recog_result)
 
+                if not isinstance(actual_result, dict) or len(actual_result.get("alternative", [])) == 0:
+                    continue;
+
                 sorted_result = sorted(recog_result['alternative'], key=lambda x: x['confidence']
                                        ) if "confidence" in recog_result["alternative"] else recog_result['alternative']
                 recog_texts = [recog_elem['transcript']
