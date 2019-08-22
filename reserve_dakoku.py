@@ -102,9 +102,9 @@ class reserve_dakoku:
                     for user in users:
                         if len(dakoku_queue):
                             if user['employee_id'] != dakoku_queue[-1]['employee_id'] and name_in_texts(user, recog_texts):
-                                dakoku_queue[-1] = {{'employee_id': user['employee_id'],
+                                dakoku_queue[-1] = {'employee_id': user['employee_id'],
                                                      'dakoku_attr': dakoku_queue[-1]['dakoku_attr'],
-                                                      'time': time.time()}}
+                                                      'time': time.time()}
                                           
                                 message = '{}さんの{}を打刻しました'.format(
                                     user['last_name_kana'], self.dakoku_attr_str[dakoku_queue[-1]['dakoku_attr']])

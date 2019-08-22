@@ -9,7 +9,7 @@ class execute_dakoku:
     def __init__(self):
         self.api = freeeAPI()
 
-    def execute_dakoku(self, dakoku_queue, wait_for=10):
+    def execute_dakoku(self, dakoku_queue, wait_for=15):
         while True:
             if len(dakoku_queue) == 0:
                 time.sleep(0.1)
