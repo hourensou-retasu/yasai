@@ -4,11 +4,14 @@ import numpy as np
 import cv2
 from PIL import Image
 import face_recognition
+from freeeAPI import freeeAPI
+
 
 class FaceRecognizer:
 
     def __init__(self, db):
         self.video = cv2.VideoCapture(0)
+        self.company_id = freeeAPI().getCompanyID()
         self.db = db
         self.known_face_names, self.known_face_features = self.fetch_known_faces()
 
@@ -58,7 +61,7 @@ class FaceRecognizer:
         cv2.destroyAllWindows()
 
     def fetch_known_faces(self):
-        users_ref = self.db.collection('users')
+        users_ref = self.db.collection(str(self.company_id))
         records = [doc.to_dict() for doc in users_ref.get()]
         face_imgs = [self.load_img_from_url(record['img_url']) for record in records]
         face_features = [face_recognition.face_encodings(img)[0] for img in face_imgs]
