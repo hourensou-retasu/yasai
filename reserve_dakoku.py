@@ -88,7 +88,7 @@ class reserve_dakoku:
 
                     for user in users:
                         if len(dakoku_queue):
-                            if user['employee_id'] != dakoku_queue[-1]['employee_id'] and user['last_name_kana'] in recog_text:
+                            if user['employee_id'] != dakoku_queue[-1]['employee_id'] and name_in_text(user, recog_text) in recog_text:
                                 dakoku_queue[-1] = {{'employee_id': user['employee_id'],
                                                      'dakoku_attr': dakoku_queue[-1]['dakoku_attr'],
                                                       'time': time.time()}}
@@ -104,6 +104,7 @@ class reserve_dakoku:
                 print("Could not request results from Google Speech Recognition service; {0}".format(e))
 
 
+    # 顔認証で失敗したユーザに対して、名前をもとに判別
     def detect_unknown_visitor(self):
         print("Say your name ...")
 
@@ -121,7 +122,7 @@ class reserve_dakoku:
             users = [doc.to_dict() for doc in users_ref.get()]
 
             for user in users:
-                if user['last_name_kana'] in recog_text:
+                if name_in_text(user, recog_text):
                     return user
 
         # 以下は認識できなかったときに止まらないように。
@@ -132,6 +133,11 @@ class reserve_dakoku:
                 "Could not request results from Google Speech Recognition service; {0}".format(e))
 
         return None
+
+
+# userの姓名がtextに含まれるか否か
+def name_in_text(user, text):
+    return user['last_name_kana'] in text or user['first_name_kana'] in text
 
 
 def main():
