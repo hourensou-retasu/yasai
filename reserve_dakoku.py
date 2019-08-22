@@ -54,7 +54,8 @@ class reserve_dakoku:
                     audio, language='ja-JP', show_all=True)
                 print(recog_result)
 
-                if not isinstance(actual_result, dict) or len(actual_result.get("alternative", [])) == 0:
+                # 音声認識がうまくいってないとき
+                if not isinstance(recog_result, dict) or len(recog_result.get("alternative", [])) == 0:
                     continue;
 
                 sorted_result = sorted(recog_result['alternative'], key=lambda x: x['confidence']
