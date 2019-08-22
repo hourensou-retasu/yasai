@@ -7,6 +7,7 @@ from jtalk import jtalk
 import face_recognizer
 import time
 from firestoreAPI import FireStoreDB
+from pykakasi import kakasi
 
 class reserve_dakoku:
     def __init__(self):
@@ -16,6 +17,10 @@ class reserve_dakoku:
         self.user_db = FireStoreDB().db
 
         self.fr = face_recognizer.FaceRecognizer(self.user_db)
+        
+        kakasi = kakasi()
+        kakasi.setMode('J', 'H')  # J(Kanji) to H(Hiragana)
+        self.conv = kakasi.getConverter()
 
         self.dakoku_patterns = [
             '.*?(おはよう).*', 
@@ -50,7 +55,7 @@ class reserve_dakoku:
             print ("Now to recognize it...")
 
             try:
-                recog_text = self.r.recognize_google(audio, language='ja-JP')
+                recog_text = conv.do(self.r.recognize_google(audio, language='ja-JP'))
                 print(recog_text)
 
                 dakoku_results = [re.match(dakoku_pattern, recog_text) for dakoku_pattern in self.dakoku_patterns]
@@ -106,24 +111,29 @@ class reserve_dakoku:
 
     # 顔認証で失敗したユーザに対して、名前をもとに判別
     def detect_unknown_visitor(self):
-        print("Say your name ...")
+        try_cnt = 0
 
-        with self.mic as source:
-            self.r.adjust_for_ambient_noise(source)  # 雑音対策
-            audio = self.r.listen(source)
+        while try_cnt < 3:
+            try_cnt += 1
 
-        print("Now to recognize it...")
+            print("Say your name ...")
 
-        try:
-            recog_text = self.r.recognize_google(audio, language='ja-JP')
-            print(recog_text)
-            
-            users_ref = self.user_db.collection('users')
-            users = [doc.to_dict() for doc in users_ref.get()]
+            with self.mic as source:
+                self.r.adjust_for_ambient_noise(source)  # 雑音対策
+                audio = self.r.listen(source)
 
-            for user in users:
-                if name_in_text(user, recog_text):
-                    return user
+            print("Now to recognize it...")
+
+            try:
+                recog_text = conv.do(self.r.recognize_google(audio, language='ja-JP'))
+                print(recog_text)
+                
+                users_ref = self.user_db.collection('users')
+                users = [doc.to_dict() for doc in users_ref.get()]
+
+                for user in users:
+                    if name_in_text(user, recog_text):
+                        return user
 
         # 以下は認識できなかったときに止まらないように。
         except sr.UnknownValueError:
