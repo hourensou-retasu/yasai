@@ -168,7 +168,7 @@ def name_in_text(user, text):
 
 # userの姓名がtextsに含まれるか否か
 def name_in_texts(user, texts):
-    return any([name_in_text(user, text) in text for text in texts])
+    return any([name_in_text(user, text) for text in texts])
 
 
 def main():
