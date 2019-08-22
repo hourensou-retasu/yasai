@@ -4,3 +4,5 @@ node_modules
 conf/firebase.json
 __pycache__
 out.wav
+freeeAPIAccessToken
+freeeAPIRefreshToken.json
