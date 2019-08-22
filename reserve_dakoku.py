@@ -101,7 +101,7 @@ class reserve_dakoku:
                     # 前回打刻されたユーザを除き、登録ユーザ名が発話に含まれるか否か
                     for user in users:
                         if len(dakoku_queue):
-                            if user['employee_id'] != dakoku_queue[-1]['employee_id'] and name_in_text(user, recog_texts):
+                            if user['employee_id'] != dakoku_queue[-1]['employee_id'] and name_in_texts(user, recog_texts):
                                 dakoku_queue[-1] = {{'employee_id': user['employee_id'],
                                                      'dakoku_attr': dakoku_queue[-1]['dakoku_attr'],
                                                       'time': time.time()}}
@@ -163,15 +163,16 @@ class reserve_dakoku:
 
 # userの姓名がtextに含まれるか否か
 def name_in_text(user, text):
-    return user['last_name'] in text or user['first_name'] in text
+    return user['last_name_kanji'] in text or user['first_name_kanji'] in text
+
 
 # userの姓名がtextsに含まれるか否か
 def name_in_texts(user, texts):
-    return any([user['last_name'] in text or user['first_name'] in text for text in texts])
+    return any([name_in_text(user, text) in text for text in texts])
 
 
 def main():
-    reserve_dakoku()
+    reserve_dakoku([])
 
 
 if __name__ == "__main__":
