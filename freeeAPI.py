@@ -1,25 +1,26 @@
 import requests
 import datetime
 
+from refreshToken import refreshToken
+
 class freeeAPI:
   def __init__(self):
-    self.token = {
-      "access_token": "fa1c9c5b54fa02ec15d41b980781b1b49a7b92aa32bf05302706f5b095c90294",
-      "token_type": "bearer",
-      "expires_in": 86400,
-      "refresh_token": "47b7741f8f642c25a8241a577b642d88cd6d22b16993e25b99a7d3ed8f065f5b",
-      "scope": "read write default_read",
-      "created_at": 1566349456
-    }
+
+    with open("./freeeAPIAccessToken") as f:
+      accessToken = f.read()
 
     self.headers = {
-      "Authorization": f'Bearer { self.token["access_token"] }'
+      "Authorization": f'Bearer { accessToken }'
     }
 
     self.APIbaseURL = "https://api.freee.co.jp/hr/api/v1"
 
     url = self.APIbaseURL + "/users/me"
     res = requests.get(url, headers=self.headers)
+
+    if res.status_code == 401:
+      refreshToken()
+      res = requests.get(url, headers=self.headers)
 
     self.companyID = res.json()["companies"][0]["id"]
 
@@ -73,4 +74,4 @@ class freeeAPI:
 if __name__ == "__main__":
   freee = freeeAPI()
 
-  print(freee.clockOut(611161))
+  print(freee.getCompanyID())
