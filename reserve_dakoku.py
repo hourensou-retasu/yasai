@@ -136,6 +136,11 @@ class reserve_dakoku:
                 recog_result = self.r.recognize_google(audio, language='ja-JP', show_all=True)
                 print(recog_result)
 
+                # 音声認識がうまくいってないとき
+                if not isinstance(recog_result, dict) or len(recog_result.get("alternative", [])) == 0:
+                    print("could not understand audio")
+                    continue
+
                 sorted_result = sorted(recog_result['alternative'], key=lambda x: x['confidence']) if "confidence" in recog_result["alternative"] else recog_result['alternative']
                 recog_texts = [recog_elem['transcript'] for recog_elem in sorted_result]
                 
