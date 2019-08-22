@@ -2,12 +2,13 @@
 
 import speech_recognition as sr
 import re
-import numpy as np
 from jtalk import jtalk
 import face_recognizer
 import time
 from firestoreAPI import FireStoreDB
 from jaconv import kata2hira
+from freeeAPI import freeeAPI
+
 
 class reserve_dakoku:
     def __init__(self):
@@ -38,6 +39,8 @@ class reserve_dakoku:
             2: '休憩開始',
             3: '休憩終了'
         }
+
+        self.company_id = freeeAPI().getCompanyID()
 
     def reserve_dakoku(self, dakoku_queue):
 
@@ -92,11 +95,15 @@ class reserve_dakoku:
                             jtalk('登録されたユーザを認識できませんでした')
                             continue
 
+                        message = '{}さんの{}を打刻しました'.format(
+                            user['last_name_kana'], self.dakoku_attr_str[dakoku_attr])
+                        jtalk(message)
+
                     dakoku_queue.append({'employee_id':user['employee_id'], 'dakoku_attr':dakoku_attr, 'time':time.time()})
 
                 # 訂正フロー
                 else:
-                    users_ref = self.user_db.collection('users')
+                    users_ref = self.user_db.collection(str(self.company_id))
                     users = [doc.to_dict() for doc in users_ref.get()]
 
                     # 前回打刻されたユーザを除き、登録ユーザ名が発話に含まれるか否か
@@ -106,7 +113,7 @@ class reserve_dakoku:
                                 dakoku_queue[-1] = {'employee_id': user['employee_id'],
                                                      'dakoku_attr': dakoku_queue[-1]['dakoku_attr'],
                                                       'time': time.time()}
-                                          
+
                                 message = '{}さんの{}を打刻しました'.format(
                                     user['last_name_kana'], self.dakoku_attr_str[dakoku_queue[-1]['dakoku_attr']])
                                 jtalk(message)
@@ -145,7 +152,7 @@ class reserve_dakoku:
                 sorted_result = sorted(recog_result['alternative'], key=lambda x: x['confidence']) if "confidence" in recog_result["alternative"] else recog_result['alternative']
                 recog_texts = [recog_elem['transcript'] for recog_elem in sorted_result]
                 
-                users_ref = self.user_db.collection('users')
+                users_ref = self.user_db.collection(str(self.company_id))
                 users = [doc.to_dict() for doc in users_ref.get()]
 
                 for user in users:
