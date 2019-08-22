@@ -164,7 +164,7 @@ class reserve_dakoku:
 
 # userの姓名がtextに含まれるか否か
 def name_in_text(user, text):
-    return user['last_name_kanji'] in text or user['first_name_kanji'] in text or kata2hira(user['last_name_kana']) in text or kata2hira(user['first_name_kana']) in text
+    return user['last_name_kanji'] in text or user['first_name_kanji'] in text or kata2hira(user['last_name_kana']) in text or kata2hira(user['first_name_kana']) in text or user['last_name_kana'] in text or user['first_name_kana'] in text
 
 # userの姓名がtextsに含まれるか否か
 def name_in_texts(user, texts):
