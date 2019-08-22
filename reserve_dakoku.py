@@ -77,8 +77,7 @@ class reserve_dakoku:
                         # また失敗したとき
                         if user is None:
                             jtalk('登録されたユーザを認識できませんでした')
-                        
-                        # 名前が登録ユーザーでないとき
+                            continue
 
                     dakoku_queue.append({'employee_id':user['employee_id'], 'dakoku_attr':dakoku_attr, 'time':time.time()})
 
@@ -91,7 +90,8 @@ class reserve_dakoku:
                         if len(dakoku_queue):
                             if user['employee_id'] != dakoku_queue[-1]['employee_id'] and user['last_name_kana'] in recog_text:
                                 dakoku_queue[-1] = {{'employee_id': user['employee_id'],
-                                                     'dakoku_attr': dakoku_queue[-1]['dakoku_attr'], 'time': time.time()}}
+                                                     'dakoku_attr': dakoku_queue[-1]['dakoku_attr'],
+                                                      'time': time.time()}}
                                           
                                 message = '{}さんの{}を打刻しました'.format(
                                     user['last_name_kana'], self.dakoku_attr_str[dakoku_queue[-1]['dakoku_attr']])
@@ -102,6 +102,7 @@ class reserve_dakoku:
                 print("could not understand audio")
             except sr.RequestError as e:
                 print("Could not request results from Google Speech Recognition service; {0}".format(e))
+
 
     def detect_unknown_visitor(self):
         print("Say your name ...")
@@ -115,7 +116,13 @@ class reserve_dakoku:
         try:
             recog_text = self.r.recognize_google(audio, language='ja-JP')
             print(recog_text)
-            return recog_text
+            
+            users_ref = self.user_db.collection('users')
+            users = [doc.to_dict() for doc in users_ref.get()]
+
+            for user in users:
+                if user['last_name_kana'] in recog_text:
+                    return user
 
         # 以下は認識できなかったときに止まらないように。
         except sr.UnknownValueError:
@@ -123,6 +130,9 @@ class reserve_dakoku:
         except sr.RequestError as e:
             print(
                 "Could not request results from Google Speech Recognition service; {0}".format(e))
+
+        return None
+
 
 def main():
     reserve_dakoku()
