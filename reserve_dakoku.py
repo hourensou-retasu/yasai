@@ -20,10 +20,10 @@ class reserve_dakoku:
         self.fr = face_recognizer.FaceRecognizer(self.user_db)
         
         self.dakoku_patterns = [
-            '.*?(おはよう).*', 
+            '.*?(おはよう).*',
             '.*?(お疲れ|先|失礼|さようなら).*',
-            '.*?(休憩)(入り|いただきます).*',
-            '.*?(休憩)(上がり|いただきました).*'
+            '.*?(休憩).*?(入り|いただきます).*',
+            '.*?(休憩).*?(上がり|いただきました).*'
         ]
 
         self.dakoku_message_dict = {
