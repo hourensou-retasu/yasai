@@ -95,7 +95,7 @@ class reserve_dakoku:
                             jtalk('登録されたユーザを認識できませんでした')
                             continue
 
-                        message = '{}さんの{}を打刻しました'.format(
+                        message = '{}さんの{}を打刻します'.format(
                             user['last_name_kana'], self.dakoku_attr_str[dakoku_attr])
                         jtalk(message)
 
@@ -114,7 +114,7 @@ class reserve_dakoku:
                                                      'dakoku_attr': dakoku_queue[-1]['dakoku_attr'],
                                                       'time': time.time()}
 
-                                message = '{}さんの{}を打刻しました'.format(
+                                message = '{}さんの{}を打刻します'.format(
                                     user['last_name_kana'], self.dakoku_attr_str[dakoku_queue[-1]['dakoku_attr']])
                                 jtalk(message)
 
