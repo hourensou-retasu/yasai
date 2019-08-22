@@ -38,3 +38,4 @@ six==1.12.0
 SpeechRecognition==3.8.1
 uritemplate==3.0.0
 urllib3==1.25.3
+jaconv==0.2.4
