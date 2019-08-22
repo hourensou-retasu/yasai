@@ -17,6 +17,7 @@ class execute_dakoku:
                 oldest_time = dakoku_queue[0]['time']
                 if time.time() - oldest_time > wait_for:
                     self._dakoku(dakoku_queue.popleft())
+                    print('dakoku executed.')
                 else:
                     time.sleep(0.1)
 
@@ -29,3 +30,5 @@ class execute_dakoku:
             self.api.breakBegin(dakoku_dict['employee_id'])
         elif dakoku_dict['dakoku_attr'] == 3:
             self.api.breakEnd(dakoku_dict['employee_id'])
+        else:
+            raise NotImplementedError

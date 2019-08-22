@@ -18,9 +18,9 @@ class reserve_dakoku:
 
         self.fr = face_recognizer.FaceRecognizer(self.user_db)
         
-        kakasi = kakasi()
-        kakasi.setMode('J', 'H')  # J(Kanji) to H(Hiragana)
-        self.conv = kakasi.getConverter()
+        _kakasi = kakasi()
+        _kakasi.setMode('J', 'H')  # J(Kanji) to H(Hiragana)
+        self.conv = _kakasi.getConverter()
 
         self.dakoku_patterns = [
             '.*?(おはよう).*', 
@@ -55,7 +55,7 @@ class reserve_dakoku:
             print ("Now to recognize it...")
 
             try:
-                recog_text = conv.do(self.r.recognize_google(audio, language='ja-JP'))
+                recog_text = self.conv.do(self.r.recognize_google(audio, language='ja-JP'))
                 print(recog_text)
 
                 dakoku_results = [re.match(dakoku_pattern, recog_text) for dakoku_pattern in self.dakoku_patterns]
@@ -125,7 +125,7 @@ class reserve_dakoku:
             print("Now to recognize it...")
 
             try:
-                recog_text = conv.do(self.r.recognize_google(audio, language='ja-JP'))
+                recog_text = self.conv.do(self.r.recognize_google(audio, language='ja-JP'))
                 print(recog_text)
                 
                 users_ref = self.user_db.collection('users')
@@ -135,12 +135,12 @@ class reserve_dakoku:
                     if name_in_text(user, recog_text):
                         return user
 
-        # 以下は認識できなかったときに止まらないように。
-        except sr.UnknownValueError:
-            print("could not understand audio")
-        except sr.RequestError as e:
-            print(
-                "Could not request results from Google Speech Recognition service; {0}".format(e))
+            # 以下は認識できなかったときに止まらないように。
+            except sr.UnknownValueError:
+                print("could not understand audio")
+            except sr.RequestError as e:
+                print(
+                    "Could not request results from Google Speech Recognition service; {0}".format(e))
 
         return None
 
