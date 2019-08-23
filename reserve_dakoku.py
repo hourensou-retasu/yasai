@@ -52,6 +52,8 @@ class reserve_dakoku:
         print("Recording start")
 
         while True:
+
+            print(self.end_speak_time, time.time())
         
             if self.end_speak_time > time.time():
                 print('record: speaking... left time is {}'.format(time.time() - self.end_speak_time))
@@ -113,6 +115,8 @@ class reserve_dakoku:
                     message = self.dakoku_message_dict[dakoku_attr] + ('、どちらさまですか' if user is None else '、' + user['last_name_kana'] + 'さん')
                     sec = jtalk(message)
 
+                    print('recognize: speak time i {}'.format(sec))
+
                     # システム発話の終了時刻を設定
                     self.end_speak_time = time.time() + sec
 
@@ -130,6 +134,8 @@ class reserve_dakoku:
                         message = '{}さんの{}を打刻します'.format(
                             user['last_name_kana'], self.dakoku_attr_str[dakoku_attr])
                         sec = jtalk(message)
+
+                        print('recognize: speak time is {}'.format(sec))
 
                         # システム発話の終了時刻を設定
                         self.end_speak_time = time.time() + sec
