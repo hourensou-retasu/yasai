@@ -52,13 +52,6 @@ class reserve_dakoku:
         print("Recording start")
 
         while True:
-
-            print(self.end_speak_time, time.time())
-        
-            if self.end_speak_time > time.time():
-                print('record: speaking... left time is {}'.format(time.time() - self.end_speak_time))
-                continue
-                
             print('record: sound_queue_size is {}'.format(len(self.sound_queue)))
 
             with self.mic as source:
@@ -149,9 +142,6 @@ class reserve_dakoku:
                         # システム発話終了まで待機
                         time.sleep(sec)
                         self.listening_speaking_flg = False
-
-                        # システム発話の終了時刻を設定
-                        self.end_speak_time = time.time() + sec
 
                     dakoku_queue.append({'employee_id':user['employee_id'], 'dakoku_attr':dakoku_attr, 'time':time.time()})
 
