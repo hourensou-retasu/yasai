@@ -112,36 +112,19 @@ class reserve_dakoku:
                             break
                             
                     message = self.dakoku_message_dict[dakoku_attr] + ('、どちらさまですか' if user is None else '、' + user['last_name_kana'] + 'さん')
-
-                    self.listening_speaking_flg = True
-                    sec = jtalk(message)
-
-                    # システム発話終了まで待機
-                    time.sleep(sec)
-                    self.listening_speaking_flg = False
+                    self.speak(message)
 
                     if user is None:
                         user = self.detect_unknown_visitor()
 
                         # また失敗したとき
                         if user is None:
-                            self.listening_speaking_flg = True
-                            sec = jtalk('登録されたユーザを認識できませんでした')
-
-                            # システム発話終了まで待機
-                            time.sleep(sec)
-                            self.listening_speaking_flg = False
+                            self.speak('登録されたユーザを認識できませんでした')
                             continue
 
                         message = '{}さんの{}を打刻します'.format(
                             user['last_name_kana'], self.dakoku_attr_str[dakoku_attr])
-
-                        self.listening_speaking_flg = True
-                        sec = jtalk('登録されたユーザを認識できませんでした')
-
-                        # システム発話終了まで待機
-                        time.sleep(sec)
-                        self.listening_speaking_flg = False
+                        self.speak(message)
 
                     dakoku_queue.append({'employee_id':user['employee_id'], 'dakoku_attr':dakoku_attr, 'time':time.time()})
 
@@ -160,13 +143,8 @@ class reserve_dakoku:
 
                                 message = '{}さんの{}を打刻します'.format(
                                     user['last_name_kana'], self.dakoku_attr_str[dakoku_queue[-1]['dakoku_attr']])
-                                
-                                self.listening_speaking_flg = True
-                                sec = jtalk(message)
 
-                                # システム発話終了まで待機
-                                time.sleep(sec)
-                                self.listening_speaking_flg = False
+                                self.speak(message)
 
             # 以下は認識できなかったときに止まらないように。
             except sr.UnknownValueError:
@@ -187,6 +165,19 @@ class reserve_dakoku:
 
         while True:
             time.sleep(10)
+
+    def speak(message):
+        # 録音終了まで待機
+        while self.listening_speaking_flg:
+            time.sleep(0.1)
+
+        self.listening_speaking_flg = True
+        sec = jtalk(message)
+
+        # システム発話終了まで待機
+        time.sleep(sec)
+        self.listening_speaking_flg = False
+
         
 
     # 顔認証で失敗したユーザに対して、名前をもとに判別
