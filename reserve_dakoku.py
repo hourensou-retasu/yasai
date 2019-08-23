@@ -8,7 +8,8 @@ import time
 from firestoreAPI import FireStoreDB
 from jaconv import kata2hira
 from freeeAPI import freeeAPI
-
+from collections import deque
+from threading import Thread
 
 class reserve_dakoku:
     def __init__(self):
@@ -19,7 +20,7 @@ class reserve_dakoku:
 
         self.fr = face_recognizer.FaceRecognizer(self.user_db)
 
-        self.sound_queue = []
+        self.sound_queue = deque([])
         
         self.dakoku_patterns = [
             '.*?(おはよう).*',
@@ -45,7 +46,7 @@ class reserve_dakoku:
         self.company_id = freeeAPI().getCompanyID()
 
     def record(self):
-        print("Rec. start")
+        print("Recording start")
 
         while True:
             self.r.adjust_for_ambient_noise(self.mic)  # 雑音対策
@@ -55,11 +56,14 @@ class reserve_dakoku:
 
             # 録音キューが溢れそうなとき
 
-    def reserve_dakoku(self, dakoku_queue):
+    def recognize(self, dakoku_queue):
+        print("Recognize start")
 
-        self.record()
-
-            print ("Now to recognize it...")
+        while True:
+            if len(self.sound_queue) == 0:
+                continue
+            
+            audio = self.sound_queue.popleft()
 
             try:
                 recog_result = self.r.recognize_google(
@@ -132,6 +136,20 @@ class reserve_dakoku:
             except sr.RequestError as e:
                 print("Could not request results from Google Speech Recognition service; {0}".format(e))
 
+
+    def reserve_dakoku(self, dakoku_queue):
+
+        record_thread = Thread(target=self.record)
+        recognize_thread = Thread(target=self.recognize, args=(dakoku_queue,))
+        record_thread.daemon = True
+        recognize_thread.daemon = True
+
+        record_thread.start()
+        recognize_thread.start()
+
+        while True:
+            time.sleep(10)
+        
 
     # 顔認証で失敗したユーザに対して、名前をもとに判別
     def detect_unknown_visitor(self):
