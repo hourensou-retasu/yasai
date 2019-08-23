@@ -166,7 +166,7 @@ class reserve_dakoku:
         while True:
             time.sleep(10)
 
-    def speak(message):
+    def speak(self, message):
         # 録音終了まで待機
         while self.listening_speaking_flg:
             time.sleep(0.1)
