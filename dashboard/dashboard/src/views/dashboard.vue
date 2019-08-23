@@ -122,7 +122,6 @@ import { db, storage } from '@/config/firestore';
 import axios from 'axios';
 
 const companyID = '1931049'
-const accessToken = '0a5d2fe60014bfbd0db6936a307ff6f61e84a730a7377019c3747b07e3460f33'
 
 export default {
   name: 'Dashboard',
@@ -136,6 +135,10 @@ export default {
   firestore: {
     users: db.collection(companyID).orderBy('employee_id'),
   },
+  mounted() {
+    this.accessToken = localStorage.accessToken
+    this.refreshToken = localStorage.refreshToken
+  },
   methods: {
     async syncFreee() {
       // freeeAPIから従業員情報を取得
@@ -143,12 +146,14 @@ export default {
         `https://api.freee.co.jp/hr/api/v1/employees?company_id=${ companyID }&year=${ this.syncFreeeYear }&month=${ this.syncFreeeMonth }`,
         {
           headers: {
-            'Authorization': `Bearer ${ accessToken }`
+            'Authorization': `Bearer ${ this.accessToken }`
           }
         }
       )
 
-      const freeeUser = res.data.employees
+      const freeeUser = res.data.employees.sort((a, b) => {
+        return a.id - b.id
+      })
 
       console.log(freeeUser)
 
@@ -168,7 +173,6 @@ export default {
       }
 
       while(true) {
-        // 調子悪いので全探索？
         if(firestoreUserCur === this.users.length) {
           dbAddStack.push(...freeeUser.slice(freeeUserCur).map(formatUserInfo))
           break
