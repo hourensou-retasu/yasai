@@ -8,7 +8,10 @@ import time
 from firestoreAPI import FireStoreDB
 from jaconv import kata2hira
 from freeeAPI import freeeAPI
+from collections import deque
+from threading import Thread
 
+MAX_NUM = 100
 
 class reserve_dakoku:
     def __init__(self):
@@ -18,6 +21,8 @@ class reserve_dakoku:
         self.user_db = FireStoreDB().db
 
         self.fr = face_recognizer.FaceRecognizer(self.user_db)
+
+        self.sound_queue = deque([])
         
         self.dakoku_patterns = [
             '.*?(おはよう).*',
@@ -42,16 +47,31 @@ class reserve_dakoku:
 
         self.company_id = freeeAPI().getCompanyID()
 
-    def reserve_dakoku(self, dakoku_queue):
+    def record(self):
+        print("Recording start")
 
         while True:
-            print("Say something ...")
+            print('record: sound_queue_size is {}'.format(len(self.sound_queue)))
 
             with self.mic as source:
-                self.r.adjust_for_ambient_noise(source) #雑音対策
+                self.r.adjust_for_ambient_noise(source)  # 雑音対策
                 audio = self.r.listen(source)
 
-            print ("Now to recognize it...")
+                self.sound_queue.append(audio)
+
+            # 録音キューが溢れそうなとき
+            if len(self.sound_queue) > MAX_NUM:
+                print('record(): too big sound queue... sleep...')
+                time.sleep(1)
+
+    def recognize(self, dakoku_queue):
+        print("Recognize start")
+
+        while True:
+            if len(self.sound_queue) == 0:
+                continue
+            
+            audio = self.sound_queue.popleft()
 
             try:
                 recog_result = self.r.recognize_google(
@@ -124,6 +144,20 @@ class reserve_dakoku:
             except sr.RequestError as e:
                 print("Could not request results from Google Speech Recognition service; {0}".format(e))
 
+
+    def reserve_dakoku(self, dakoku_queue):
+
+        record_thread = Thread(target=self.record)
+        recognize_thread = Thread(target=self.recognize, args=(dakoku_queue,))
+        record_thread.daemon = True
+        recognize_thread.daemon = True
+
+        record_thread.start()
+        recognize_thread.start()
+
+        while True:
+            time.sleep(10)
+        
 
     # 顔認証で失敗したユーザに対して、名前をもとに判別
     def detect_unknown_visitor(self):
