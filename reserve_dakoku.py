@@ -18,6 +18,8 @@ class reserve_dakoku:
         self.user_db = FireStoreDB().db
 
         self.fr = face_recognizer.FaceRecognizer(self.user_db)
+
+        self.sound_queue = []
         
         self.dakoku_patterns = [
             '.*?(おはよう).*',
@@ -42,14 +44,20 @@ class reserve_dakoku:
 
         self.company_id = freeeAPI().getCompanyID()
 
-    def reserve_dakoku(self, dakoku_queue):
+    def record(self):
+        print("Rec. start")
 
         while True:
-            print("Say something ...")
+            self.r.adjust_for_ambient_noise(self.mic)  # 雑音対策
+            audio = self.r.listen(self.mic)
 
-            with self.mic as source:
-                self.r.adjust_for_ambient_noise(source) #雑音対策
-                audio = self.r.listen(source)
+            self.sound_queue.append(audio)
+
+            # 録音キューが溢れそうなとき
+
+    def reserve_dakoku(self, dakoku_queue):
+
+        self.record()
 
             print ("Now to recognize it...")
 
