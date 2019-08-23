@@ -135,6 +135,8 @@ class reserve_dakoku:
 
                     # 前回打刻されたユーザを除き、登録ユーザ名が発話に含まれるか否か
                     if len(dakoku_queue):
+                        detect_flg = False
+
                         for user in users:
                             if user['employee_id'] != dakoku_queue[-1]['employee_id'] and name_in_texts(user, recog_texts):
                                 dakoku_queue[-1] = {'employee_id': user['employee_id'],
@@ -144,11 +146,13 @@ class reserve_dakoku:
                                 message = '{}さんの{}を打刻します'.format(
                                     user['last_name_kana'], self.dakoku_attr_str[dakoku_queue[-1]['dakoku_attr']])
 
+                                detect_flg = True
                                 self.speak(message)
                                 continue
-                        
-                        self.speak('登録されたユーザを認識できませんでした')
-                        continue
+
+                        if not detect_flg:
+                            self.speak('登録されたユーザを認識できませんでした')
+                            continue
                     
                     else:
                         self.speak('訂正可能な打刻情報が存在しません')
