@@ -11,6 +11,8 @@ from freeeAPI import freeeAPI
 from collections import deque
 from threading import Thread
 
+MAX_NUM = 100
+
 class reserve_dakoku:
     def __init__(self):
         self.r = sr.Recognizer()
@@ -49,12 +51,16 @@ class reserve_dakoku:
         print("Recording start")
 
         while True:
+            print('record: sound_queue_size: {}'.format(len(self.sound_queue)))
             self.r.adjust_for_ambient_noise(self.mic)  # 雑音対策
             audio = self.r.listen(self.mic)
 
             self.sound_queue.append(audio)
 
             # 録音キューが溢れそうなとき
+            if len(self.sound_queue) > MAX_NUM:
+                print('record(): too big sound queue... sleep...')
+                time.sleep(1)
 
     def recognize(self, dakoku_queue):
         print("Recognize start")
