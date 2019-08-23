@@ -23,6 +23,7 @@ class reserve_dakoku:
         self.fr = face_recognizer.FaceRecognizer(self.user_db)
 
         self.sound_queue = deque([])
+        self.end_speak_time = time.time()
         
         self.dakoku_patterns = [
             '.*?(おはよう).*',
@@ -51,6 +52,11 @@ class reserve_dakoku:
         print("Recording start")
 
         while True:
+        
+            if self.end_speak_time > time.time():
+                print('record: speaking... left time is {}'.format(time.time() - self.end_speak_time))
+                continue
+                
             print('record: sound_queue_size is {}'.format(len(self.sound_queue)))
 
             with self.mic as source:
@@ -105,19 +111,28 @@ class reserve_dakoku:
                             break
                             
                     message = self.dakoku_message_dict[dakoku_attr] + ('、どちらさまですか' if user is None else '、' + user['last_name_kana'] + 'さん')
-                    jtalk(message)
+                    sec = jtalk(message)
+
+                    # システム発話の終了時刻を設定
+                    self.end_speak_time = time.time() + sec
 
                     if user is None:
                         user = self.detect_unknown_visitor()
 
                         # また失敗したとき
                         if user is None:
-                            jtalk('登録されたユーザを認識できませんでした')
+                            sec = jtalk('登録されたユーザを認識できませんでした')
+
+                            # システム発話の終了時刻を設定
+                            self.end_speak_time = time.time() + sec
                             continue
 
                         message = '{}さんの{}を打刻します'.format(
                             user['last_name_kana'], self.dakoku_attr_str[dakoku_attr])
-                        jtalk(message)
+                        sec = jtalk(message)
+
+                        # システム発話の終了時刻を設定
+                        self.end_speak_time = time.time() + sec
 
                     dakoku_queue.append({'employee_id':user['employee_id'], 'dakoku_attr':dakoku_attr, 'time':time.time()})
 
@@ -136,7 +151,10 @@ class reserve_dakoku:
 
                                 message = '{}さんの{}を打刻します'.format(
                                     user['last_name_kana'], self.dakoku_attr_str[dakoku_queue[-1]['dakoku_attr']])
-                                jtalk(message)
+                                sec = jtalk(message)
+
+                                # システム発話の終了時刻を設定
+                                self.end_speak_time = time.time() + sec
 
             # 以下は認識できなかったときに止まらないように。
             except sr.UnknownValueError:
