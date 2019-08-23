@@ -52,10 +52,12 @@ class reserve_dakoku:
 
         while True:
             print('record: sound_queue_size is {}'.format(len(self.sound_queue)))
-            self.r.adjust_for_ambient_noise(self.mic)  # 雑音対策
-            audio = self.r.listen(self.mic)
 
-            self.sound_queue.append(audio)
+            with self.mic as source:
+                self.r.adjust_for_ambient_noise(source)  # 雑音対策
+                audio = self.r.listen(source)
+
+                self.sound_queue.append(audio)
 
             # 録音キューが溢れそうなとき
             if len(self.sound_queue) > MAX_NUM:
