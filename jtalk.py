@@ -1,5 +1,6 @@
 import subprocess
 from datetime import datetime
+import wave
 
 def jtalk(t):
     open_jtalk = ['open_jtalk']
@@ -14,6 +15,9 @@ def jtalk(t):
     c.wait()
     aplay = ['afplay', 'out.wav']
     wr = subprocess.Popen(aplay)
+
+    wf = wave.open("out.wav", "r")
+    return float(wf.getnframes()) / wf.getframerate()
 
 def say_datetime():
     d = datetime.now()
