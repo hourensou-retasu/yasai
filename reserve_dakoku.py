@@ -54,6 +54,7 @@ class reserve_dakoku:
         while True:
         
             if self.end_speak_time > time.time():
+                print('record: speaking... left time is {}'.format(time.time() - self.end_speak_time))
                 continue
                 
             print('record: sound_queue_size is {}'.format(len(self.sound_queue)))
