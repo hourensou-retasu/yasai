@@ -51,7 +51,7 @@ class reserve_dakoku:
         print("Recording start")
 
         while True:
-            print('record: sound_queue_size: {}'.format(len(self.sound_queue)))
+            print('record: sound_queue_size is {}'.format(len(self.sound_queue)))
             self.r.adjust_for_ambient_noise(self.mic)  # 雑音対策
             audio = self.r.listen(self.mic)
 
