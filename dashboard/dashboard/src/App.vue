@@ -30,10 +30,11 @@
         <div class="navbar-end">
           <div class="navbar-item">
             <div class="buttons">
-              <a class="button is-primary">
-                <strong>Sign up</strong>
-              </a>
-              <a class="button is-light">Log in</a>
+              <a
+                v-show="isLoggedIn"
+                class="button is-light"
+                href="https://accounts.secure.freee.co.jp/public_api/authorize?client_id=6e4d11db5993f17638e620aae1f25a38c5c95dcdb0c825d1432994ab1d2b0fc0&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth&response_type=code"
+              >Log in</a>
             </div>
           </div>
         </div>
@@ -67,5 +68,11 @@
 import "bulma/css/bulma.css";
 import "@fortawesome/fontawesome-free/js/all.js";
 
-export default {};
+export default {
+  computed: {
+    isLoggedIn() {
+      return !localStorage.getItem('accessToken')
+    }
+  }
+};
 </script>

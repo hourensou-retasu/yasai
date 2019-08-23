@@ -26,5 +26,10 @@ export default new Router({
       name: 'dashboard',
       component: () => import('./views/dashboard.vue'),
     },
+    {
+      path: '/auth',
+      name: 'auth',
+      component: () => import('./views/auth.vue'),
+    },
   ],
 });
