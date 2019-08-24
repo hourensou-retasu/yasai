@@ -142,14 +142,36 @@ export default {
   methods: {
     async syncFreee() {
       // freeeAPIから従業員情報を取得
-      const res = await axios.get(
-        `https://api.freee.co.jp/hr/api/v1/employees?company_id=${ companyID }&year=${ this.syncFreeeYear }&month=${ this.syncFreeeMonth }`,
-        {
-          headers: {
-            'Authorization': `Bearer ${ this.accessToken }`
+      let res 
+      
+      try {
+        res = await axios.get(
+          `https://api.freee.co.jp/hr/api/v1/employees?company_id=${ companyID }&year=${ this.syncFreeeYear }&month=${ this.syncFreeeMonth }`,
+          {
+            headers: {
+              'Authorization': `Bearer ${ this.accessToken }`
+            }
           }
-        }
-      )
+        )
+      } catch {
+        const { access_token, refresh_token } = await this.doRefreshToken()
+        this.accessToken = access_token
+        localStorage.setItem('accessToken', access_token)
+        this.refreshToken = refresh_token
+        localStorage.setItem('refreshToken', refresh_token)
+        
+
+        res = await axios.get(
+          `https://api.freee.co.jp/hr/api/v1/employees?company_id=${ companyID }&year=${ this.syncFreeeYear }&month=${ this.syncFreeeMonth }`,
+          {
+            headers: {
+              'Authorization': `Bearer ${ this.accessToken }`
+            }
+          }
+        )
+      }
+
+      console.log(this.accessToken, this.refreshToken)
 
       const freeeUser = res.data.employees.sort((a, b) => {
         return a.id - b.id
@@ -198,6 +220,13 @@ export default {
         db.collection(companyID).doc(String(item.employee_id)).set(item)
       })
 
+    },
+    async doRefreshToken() {
+      const url = "http://localhost:8000/token"
+      const res = await axios.put(url, {
+        refreshToken: this.refreshToken
+      })
+      return res.data
     },
     async setProfilePhoto(employeeID, e) {
       // 画像ファイルを開くローカルで
