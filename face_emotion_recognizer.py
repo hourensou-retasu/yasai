@@ -46,8 +46,8 @@ class FaceEmotionRecognizer:
                 if name != 'Unknown':
                     detected = True
                     detected_name = name.copy()
-                    emotion = self.recognize_posneg(small_frame, face_locations[i])
-                    detected_name['emotion'] = emotion
+                    #emotion = self.recognize_posneg(small_frame, face_locations[i])
+                    #detected_name['emotion'] = emotion
                     break
 
             if detected:
