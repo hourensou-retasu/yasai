@@ -47,7 +47,7 @@ class FaceEmotionRecognizer:
                 if name != 'Unknown':
                     detected = True
                     detected_name = name.copy()
-                    emotion = self.recognize_emotion(small_frame, face_locations[i])
+                    emotion = self.recognize_posneg(small_frame, face_locations[i])
                     detected_name['emotion'] = emotion
                     break
 
@@ -85,20 +85,27 @@ class FaceEmotionRecognizer:
                 face_names.append(name)
 
             for i, name in enumerate(face_names):
-                self.display(frame, face_locations[i], name)
-                '''
-                if name != 'Unknown':
-                    detected_name = name.copy()
-                    #emotion = self.recognize_emotion(small_frame, face_locations[i])
-                    #detected_name['emotion'] = emotion
-                    break
-                '''
+                emotion = self.recognize_emotion(small_frame, face_locations[i])
+                frame = self.display(frame, face_locations[i], name, emotion)
 
             cv2.imshow('Demo', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
     def recognize_emotion(self, frame, location):
+        emotions = ['angry', 'disgust', 'scared', 'happy', 'sad', 'surprised', 'neutral']
+        top, right, bottom, left = location
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        roi = gray[top:bottom, left:right]
+        roi = cv2.resize(roi, (64, 64))
+        roi = roi.astype("float") / 255.0
+        roi = img_to_array(roi)
+        roi = np.expand_dims(roi, axis=0)
+        preds = self.emoclf.predict(roi)[0]
+        label = emotions[preds.argmax()]
+        return label
+
+    def recognize_posneg(self, frame, location):
         top, right, bottom, left = location
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         roi = gray[top:bottom, left:right]
@@ -113,7 +120,7 @@ class FaceEmotionRecognizer:
             emotion = -1
         return emotion
 
-    def display(self, frame, location, name):
+    def display(self, frame, location, name, emotion):
         if name != 'Unknown':
             name = name['last_name_kanji'] + ' ' + name['first_name_kanji']
         top, right, bottom, left = location
@@ -123,8 +130,10 @@ class FaceEmotionRecognizer:
         left *= 4
         cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
         cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
-        font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+        font_path = '/Users/ono-yu/Library/Fonts/rounded-mplus-1m-medium.ttf'
+        info = name + ': {}'.format(emotion)
+        frame = self.put_text(frame, info, (left + 6, bottom - 30), font_path, 26, (255, 255, 255))
+        return frame
 
     def quit(self):
         self.video.release()
