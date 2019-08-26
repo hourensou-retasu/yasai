@@ -61,7 +61,7 @@ class reserve_dakoku:
                     time.sleep(0.1)
 
                 self.listening_speaking_flg = True
-                audio = self.r.listen(source)
+                audio = self.r.listen(source, phrase_time_limit=3)
                 self.listening_speaking_flg = False
 
                 self.sound_queue.append(audio)
@@ -113,7 +113,8 @@ class reserve_dakoku:
                             
                     message = self.dakoku_message_dict[dakoku_attr] + ('、どちらさまですか' if user is None else '、' + user['last_name_kana'] + 'さん')
 
-                    message += '、' + mercy_message(dakoku_attr, user['emotion'])
+                    if user is not None:
+                        message += '、' + mercy_message(dakoku_attr, user['emotion'])
 
                     self.speak(message)
 
@@ -158,7 +159,6 @@ class reserve_dakoku:
                             continue
                     
                     else:
-                        self.speak('訂正可能な打刻情報が存在しません')
                         continue
 
 
