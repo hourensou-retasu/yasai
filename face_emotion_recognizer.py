@@ -43,7 +43,6 @@ class FaceEmotionRecognizer:
             detected = False
             detected_name = None
             for i, name in enumerate(face_names):
-                self.display(frame, face_locations[i], name)
                 if name != 'Unknown':
                     detected = True
                     detected_name = name.copy()
