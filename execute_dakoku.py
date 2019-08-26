@@ -11,6 +11,8 @@ class execute_dakoku:
 
     def execute_dakoku(self, dakoku_queue, wait_for=20):
         while True:
+            print('execute: running')
+
             if len(dakoku_queue) == 0:
                 time.sleep(0.1)
             else:

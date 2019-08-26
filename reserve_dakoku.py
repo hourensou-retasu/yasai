@@ -52,13 +52,15 @@ class reserve_dakoku:
         print("Recording start")
 
         while True:
+            print('record: running')
+
             print('record: sound_queue_size is {}'.format(len(self.sound_queue)))
 
             with self.mic as source:
                 self.r.adjust_for_ambient_noise(source)  # 雑音対策
 
                 while self.listening_speaking_flg:
-                    time.sleep(0.1)
+                    time.sleep(0.01)
 
                 self.listening_speaking_flg = True
                 audio = self.r.listen(source)
@@ -75,6 +77,8 @@ class reserve_dakoku:
         print("Recognize start")
 
         while True:
+            print('recognize: running')
+
             if len(self.sound_queue) == 0:
                 continue
             
