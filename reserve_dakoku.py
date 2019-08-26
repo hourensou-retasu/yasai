@@ -54,7 +54,7 @@ class reserve_dakoku:
             print ("Now to recognize it...")
 
             try:
-                recog_result = self.r.recognize_google(
+                recog_result = self.r.recognize_sphinx(
                     audio, language='ja-JP', show_all=True)
                 print(recog_result)
 
