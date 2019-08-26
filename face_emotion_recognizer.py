@@ -43,12 +43,15 @@ class FaceEmotionRecognizer:
             detected = False
             detected_name = None
             for i, name in enumerate(face_names):
+                self.display(frame, face_locations[i], name)
                 if name != 'Unknown':
                     detected = True
                     detected_name = name.copy()
-                    emotion = self.recognize_emotion(small_frame, face_locations[i])
-                    detected_name['emotion'] = emotion
+                    #emotion = self.recognize_emotion(small_frame, face_locations[i])
+                    #detected_name['emotion'] = emotion
                     break
+
+            cv2.imshow('Camera', frame)
 
             if detected:
                 break
@@ -75,6 +78,19 @@ class FaceEmotionRecognizer:
         else:
             emotion = -1
         return emotion
+
+    def display(self, frame, location, name):
+        if name != 'Unknown':
+            name = name['last_name_kanji'] + ' ' + name['first_name_kanji']
+        top, right, bottom, left = location
+        top *= 4
+        right *= 4
+        bottom *= 4
+        left *= 4
+        cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+        cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
+        font = cv2.FONT_HERSHEY_DUPLEX
+        cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
 
     def quit(self):
         self.video.release()
