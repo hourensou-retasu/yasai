@@ -85,6 +85,9 @@ class reserve_dakoku:
                             break
                             
                     message = self.dakoku_message_dict[dakoku_attr] + ('、どちらさまですか' if user is None else '、' + user['last_name_kana'] + 'さん')
+
+                    message += mercy_message(dakoku_attr, user['emotion'])
+
                     jtalk(message)
 
                     if user is None:
@@ -122,7 +125,10 @@ class reserve_dakoku:
             except sr.UnknownValueError:
                 print("could not understand audio")
             except sr.RequestError as e:
-                print("Could not request results from Google Speech Recognition service; {0}".format(e))
+                print(
+                    "Could not request results from Google Speech Recognition service; {0}".format(e))
+            except ValueError as e:
+                print(e)
 
 
     # 顔認証で失敗したユーザに対して、名前をもとに判別
@@ -176,6 +182,20 @@ def name_in_text(user, text):
 # userの姓名がtextsに含まれるか否か
 def name_in_texts(user, texts):
     return any([name_in_text(user, text) for text in texts])
+
+# 慈悲深い声掛けを追加
+def mercy_message(attr, emotion):
+    if attr == 0:
+        return '今日も頑張りましょう' if emotion == 1 else '無理せず頑張りましょう'
+    elif attr == 1:
+        return '次も頑張ってください' if emotion == 1 else 'ゆっくり休んでください'
+    elif attr == 2:
+        return '' if emotion == 1 else 'ゆっくり休んでください'
+    elif attr == 3:
+        return '' if emotion == 1 else '無理せず頑張りましょう'
+    else:
+        raise ValueError('error: attr is invalid')
+        
 
 
 def main():
