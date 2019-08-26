@@ -19,6 +19,7 @@ googleapis-common-protos==1.6.0
 grpcio==1.23.0
 httplib2==0.13.1
 idna==2.8
+jaconv==0.2.4
 msgpack==0.6.1
 numpy==1.17.0
 opencv-contrib-python==4.1.0.25
