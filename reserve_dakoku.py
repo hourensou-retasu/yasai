@@ -10,6 +10,7 @@ from jaconv import kata2hira
 from freeeAPI import freeeAPI
 from collections import deque
 from threading import Thread
+from pygame.mixer import music
 
 MAX_NUM = 100
 
@@ -48,6 +49,10 @@ class reserve_dakoku:
 
         self.company_id = freeeAPI().getCompanyID()
 
+        music.load('tekuteku arukou.mp3')
+        music.play(loops=-1)
+        music.pause()
+
     def record(self):
         print("Recording start")
 
@@ -81,9 +86,13 @@ class reserve_dakoku:
             audio = self.sound_queue.popleft()
 
             try:
+                music.unpause()
+
                 recog_result = self.r.recognize_google(
                     audio, language='ja-JP', show_all=True)
                 print(recog_result)
+
+                music.pause()
 
                 # 音声認識がうまくいってないとき
                 if not isinstance(recog_result, dict) or len(recog_result.get("alternative", [])) == 0:
