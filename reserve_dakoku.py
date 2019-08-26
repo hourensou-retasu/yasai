@@ -186,13 +186,13 @@ def name_in_texts(user, texts):
 # 慈悲深い声掛けを追加
 def mercy_message(attr, emotion):
     if attr == 0:
-        return '今日も頑張りましょう' if emotion == 1 else '無理せず頑張りましょう'
+        return '今日も頑張りましょう' if emotion == 1 else '無理しないで下さい'
     elif attr == 1:
         return '次も頑張ってください' if emotion == 1 else 'ゆっくり休んでください'
     elif attr == 2:
         return '' if emotion == 1 else 'ゆっくり休んでください'
     elif attr == 3:
-        return '' if emotion == 1 else '無理せず頑張りましょう'
+        return '' if emotion == 1 else '無理しないで下さい'
     else:
         raise ValueError('error: attr is invalid')
         
