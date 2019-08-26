@@ -3,7 +3,7 @@
 import speech_recognition as sr
 import re
 from jtalk import jtalk
-import face_recognizer
+import face_emotion_recognizer
 import time
 from firestoreAPI import FireStoreDB
 from jaconv import kata2hira
@@ -17,7 +17,7 @@ class reserve_dakoku:
 
         self.user_db = FireStoreDB().db
 
-        self.fr = face_recognizer.FaceRecognizer(self.user_db)
+        self.fr = face_emotion_recognizer.FaceEmotionRecognizer(self.user_db)
         
         self.dakoku_patterns = [
             '.*?(おはよう).*',
