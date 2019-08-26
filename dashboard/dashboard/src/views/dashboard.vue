@@ -1,54 +1,119 @@
 <template>
-  <div class="dashboard">
-    <table>
-      <tr>
-        <th>employee_id</th>
-        <th>last_name_kanji</th>
-        <th>first_name_kanji</th>
-        <th>img</th>
-      </tr>
-      <tr
-        v-for="user in users"
-        :key="user.employee_id"
-      >
-        <td>{{ user.employee_id }}</td>
-        <td>{{ user.last_name_kanji }}</td>
-        <td>{{ user.first_name_kanji }}</td>
-        <td>
-          <img
-            v-if="user.img_url"
-            class="employee-img"
-            :src="user.img_url"
-            :alt="user.employee_id"
+  <div class="dashboard container">
+    <div class="field is-horizontal">
+      <div class="field-body">
+        <div class="field">
+          <p class="control is-expanded has-icons-right">
+            <input
+              v-model="syncFreeeYear"
+              class="input"
+              type="text"
+            >
+            <span class="icon is-small is-right">
+              年
+            </span>
+          </p>
+        </div>
+        <div class="field">
+          <p class="control is-expanded has-icons-right">
+            <input
+              v-model="syncFreeeMonth"
+              class="input"
+              type="text"
+            >
+            <span class="icon is-small is-right">
+              月
+            </span>
+          </p>
+        </div>
+        <div class="field">
+          <button
+            class="button"
+            @click.prevent="syncFreee"
           >
-          <input
-            v-else
-            :key="'photo' + user.img_url"
-            type="file"
-            @change="setProfilePhoto(user.employee_id, $event)"
-          >
-        </td>
-      </tr>
+            従業員データを更新する
+          </button>
+        </div>
+      </div>
+    </div>
+    <table class="table is-hoverable is-fullwidth">
+      <thead>
+        <tr>
+          <th class="has-text-centered">
+            employee_id
+          </th>
+          <th class="has-text-centered">
+            last_name_kanji
+          </th>
+          <th class="has-text-centered">
+            first_name_kanji
+          </th>
+          <th class="has-text-centered">
+            img
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="user in users"
+          :key="user.employee_id"
+        >
+          <th class="has-text-centered">
+            {{ user.employee_id }}
+          </th>
+          <td class="has-text-centered">
+            {{ user.last_name_kanji }}
+          </td>
+          <td class="has-text-centered">
+            {{ user.first_name_kanji }}
+          </td>
+          <td>
+            <img
+              v-if="user.img_url"
+              class="employee-img image"
+              :src="user.img_url"
+              :alt="user.employee_id"
+            >
+            <div
+              v-else
+              class="file"
+            >
+              <label class="file-label">
+                <input
+                  :key="'photo' + user.img_url"
+                  class="file-input"
+                  type="file"
+                  name="resume"
+                  @change="setProfilePhoto(user.employee_id, $event)"
+                >
+                <span class="file-cta">
+                  <span class="file-icon">
+                    <i class="far fa-image" />
+                  </span>
+                  <span class="file-label">
+                    画像を選択してください
+                  </span>
+                </span>
+              </label>
+            </div>
+          </td>
+        </tr>
+      </tbody>
     </table>
-    <input
-      v-model="syncFreeeYear"   
-      type="text"
-    >
-    <input
-      v-model="syncFreeeMonth"
-      type="text"
-    >
-    <button
-      @click.prevent="syncFreee"
-    >
-      従業員データを更新する
-    </button>
   </div>
 </template>
 
 <style lang='scss'>
 .employee-img {
   height: 10em;
+  margin: 0 auto;
+}
+
+.input.set-year {
+  width: 3.5em;
+}
+.input.set-month {
+    width: 2em;
 }
 </style>
 
@@ -57,7 +122,6 @@ import { db, storage } from '@/config/firestore';
 import axios from 'axios';
 
 const companyID = '1931049'
-const accessToken = '5c54e9a3d5c564ecf94872b185996ae0ac38fc4a89bbb1bfadbdab705dd1e2ad'
 
 export default {
   name: 'Dashboard',
@@ -71,6 +135,10 @@ export default {
   firestore: {
     users: db.collection(companyID).orderBy('employee_id'),
   },
+  mounted() {
+    this.accessToken = localStorage.accessToken
+    this.refreshToken = localStorage.refreshToken
+  },
   methods: {
     async syncFreee() {
       // freeeAPIから従業員情報を取得
@@ -78,12 +146,14 @@ export default {
         `https://api.freee.co.jp/hr/api/v1/employees?company_id=${ companyID }&year=${ this.syncFreeeYear }&month=${ this.syncFreeeMonth }`,
         {
           headers: {
-            'Authorization': `Bearer ${ accessToken }`
+            'Authorization': `Bearer ${ this.accessToken }`
           }
         }
       )
 
-      const freeeUser = res.data.employees
+      const freeeUser = res.data.employees.sort((a, b) => {
+        return a.id - b.id
+      })
 
       console.log(freeeUser)
 
@@ -92,9 +162,19 @@ export default {
       let firestoreUserCur = 0
       const dbAddStack = []
 
+      const formatUserInfo = employee => {
+        return {
+          'employee_id': employee.id,
+          'first_name_kana': employee.profile_rule.first_name_kana,
+          'first_name_kanji': employee.profile_rule.first_name,
+          'last_name_kana': employee.profile_rule.last_name_kana,
+          'last_name_kanji':employee.profile_rule.last_name
+        }
+      }
+
       while(true) {
         if(firestoreUserCur === this.users.length) {
-          dbAddStack.push(...freeeUser.slice(freeeUserCur))
+          dbAddStack.push(...freeeUser.slice(freeeUserCur).map(formatUserInfo))
           break
         }
         if(freeeUserCur === freeeUser.length) break
@@ -105,13 +185,7 @@ export default {
           firestoreUserCur++
           freeeUserCur++
         } else if(employee.id < this.users[firestoreUserCur].employee_id) {
-          dbAddStack.push({
-            'employee_id': employee.id,
-            'first_name_kana': employee.profile_rule.first_name_kana,
-            'first_name_kanji': employee.profile_rule.first_name,
-            'last_name_kana': employee.profile_rule.last_name_kana,
-            'last_name_kanji':employee.profile_rule.last_name
-          })
+          dbAddStack.push(formatUserInfo(employee))
           freeeUserCur++
         } else {
           firestoreUserCur++
@@ -121,7 +195,7 @@ export default {
       console.log(dbAddStack)
 
       dbAddStack.forEach(item => {
-        db.collection(companyID).add(item)
+        db.collection(companyID).doc(String(item.employee_id)).set(item)
       })
 
     },
