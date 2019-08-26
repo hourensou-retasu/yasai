@@ -6,7 +6,11 @@ from PIL import Image, ImageFont, ImageDraw
 import face_recognition
 from keras.preprocessing.image import img_to_array
 from keras.models import load_model
+import tensorflow as tf
 from freeeAPI import freeeAPI
+
+
+graph = tf.get_default_graph()
 
 
 class FaceEmotionRecognizer:
@@ -47,6 +51,7 @@ class FaceEmotionRecognizer:
                     detected = True
                     detected_name = name.copy()
                     emotion = self.recognize_posneg(small_frame, face_locations[i])
+                    print(emotion)
                     detected_name['emotion'] = emotion
                     break
 
@@ -112,7 +117,9 @@ class FaceEmotionRecognizer:
         roi = roi.astype("float") / 255.0
         roi = img_to_array(roi)
         roi = np.expand_dims(roi, axis=0)
-        preds = self.emoclf.predict(roi)[0]
+        global graph
+        with graph.as_default():
+            preds = self.emoclf.predict(roi)[0]
         if preds.argmax() in [3, 5]:
             emotion = 1
         else:
@@ -145,10 +152,11 @@ class FaceEmotionRecognizer:
         face_features = [face_recognition.face_encodings(img)[0] for img in face_imgs]
         return records, face_features
 
-    @staticmethod
-    def _init_emoclf():
+    def _init_emoclf(self):
+        global graph
         model_path = 'models/mini_XCEPTION.hdf5'
-        clf = load_model(model_path, compile=False)
+        with graph.as_default():
+            clf = load_model(model_path, compile=False)
         return clf
 
     @staticmethod
