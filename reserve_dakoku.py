@@ -51,6 +51,7 @@ class reserve_dakoku:
 
         init(frequency=44100)
         music.load('one12.mp3')
+        music.set_volume(music.get_volume()*0.8)
 
     def record(self):
         print("Recording start")
@@ -102,6 +103,8 @@ class reserve_dakoku:
                 recog_text = recog_texts[0]
                 print(recog_text)
 
+                music.fadeout(100)
+
                 dakoku_results = [re.match(dakoku_pattern, recog_text) for dakoku_pattern in self.dakoku_patterns]
             
                 # 打刻WORDにマッチ
@@ -117,7 +120,6 @@ class reserve_dakoku:
                             dakoku_attr = index
                             break
 
-                    music.fadeout(100)
                     
                     message = self.dakoku_message_dict[dakoku_attr] + ('、どちらさまですか' if user is None else '、' + user['last_name_kana'] + 'さん')
                     self.speak(message)
