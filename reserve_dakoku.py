@@ -85,17 +85,15 @@ class reserve_dakoku:
             audio = self.sound_queue.popleft()
 
             try:
-                music.play(loops=-1)
-
                 recog_result = self.r.recognize_google(
                     audio, language='ja-JP', show_all=True)
                 print(recog_result)
 
-                music.fadeout(100)
-
                 # 音声認識がうまくいってないとき
                 if not isinstance(recog_result, dict) or len(recog_result.get("alternative", [])) == 0:
-                    continue;
+                    continue
+
+                music.play(loops=-1)
 
                 sorted_result = sorted(recog_result['alternative'], key=lambda x: x['confidence']
                                        ) if "confidence" in recog_result["alternative"] else recog_result['alternative']
@@ -118,7 +116,9 @@ class reserve_dakoku:
                         else:
                             dakoku_attr = index
                             break
-                            
+
+                    music.fadeout(100)
+                    
                     message = self.dakoku_message_dict[dakoku_attr] + ('、どちらさまですか' if user is None else '、' + user['last_name_kana'] + 'さん')
                     self.speak(message)
 
