@@ -148,7 +148,7 @@ class reserve_dakoku:
 
                                 detect_flg = True
                                 self.speak(message)
-                                continue
+                                break
 
                         if not detect_flg:
                             self.speak('登録されたユーザを認識できませんでした')
