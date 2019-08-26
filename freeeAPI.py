@@ -26,10 +26,16 @@ class freeeAPI:
 
   def __doGET(self, url):
     res = requests.get(url, headers=self.headers)
+    if res.status_code == 401:
+      refreshToken()
+      res = requests.get(url, headers=self.headers)
     return res.json()
 
   def __doPOST(self, url, data):
     res = requests.post(url, headers=self.headers, json=data)
+    if res.status_code == 401:
+      refreshToken()
+      res = requests.get(url, headers=self.headers)
     return res.json()
 
   def __timeClocks(self, employeeID, clockType):
