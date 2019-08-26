@@ -86,7 +86,7 @@ class reserve_dakoku:
                             
                     message = self.dakoku_message_dict[dakoku_attr] + ('、どちらさまですか' if user is None else '、' + user['last_name_kana'] + 'さん')
 
-                    message += mercy_message(dakoku_attr, user['emotion'])
+                    message += '、' + mercy_message(dakoku_attr, user['emotion'])
 
                     jtalk(message)
 
