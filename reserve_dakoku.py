@@ -105,7 +105,7 @@ class reserve_dakoku:
             
                 # 打刻WORDにマッチ
                 if any(dakoku_results):
-                    user = self.fr.authorize()
+                    user = self.fr.authorize(num_trial=20)
                     
                     # マッチした打刻種類の最初のindexを取得 0:出勤 1:退勤 2:休憩始 3:休憩終
                     dakoku_attr = None
@@ -211,16 +211,16 @@ class reserve_dakoku:
 
     # 顔認証で失敗したユーザに対して、名前をもとに判別
     def detect_unknown_visitor(self):
-        try_cnt = 0
+        start = time.time()
 
-        while try_cnt < 3:
-            try_cnt += 1
+        print('say your name...')
 
-            print("Say your name ...")
+        while time.time() - start < 20:
+            if len(self.sound_queue) == 0:
+                time.sleep(0.1)
+                continue
 
-            with self.mic as source:
-                self.r.adjust_for_ambient_noise(source)  # 雑音対策
-                audio = self.r.listen(source)
+            audio = self.sound_queue.popleft()
 
             print("Now to recognize it...")
 
