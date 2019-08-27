@@ -50,13 +50,16 @@ class reserve_dakoku:
 
         self.company_id = freeeAPI().getCompanyID()
 
+        users_ref = self.user_db.collection(str(self.company_id))
+        self.users = [doc.to_dict() for doc in users_ref.get()]
+
     def record(self):
         print("Recording start")
 
-        while True:
-            print('record: sound_queue_size is {}'.format(len(self.sound_queue)))
+        with self.mic as source:
 
-            with self.mic as source:
+            while True:
+
                 self.r.adjust_for_ambient_noise(source)  # 雑音対策
 
                 while self.listening_speaking_flg:
@@ -145,14 +148,11 @@ class reserve_dakoku:
 
                 # 訂正フロー
                 else:
-                    users_ref = self.user_db.collection(str(self.company_id))
-                    users = [doc.to_dict() for doc in users_ref.get()]
-
                     # 前回打刻されたユーザを除き、登録ユーザ名が発話に含まれるか否か
                     if len(dakoku_queue):
                         detect_flg = False
 
-                        for user in users:
+                        for user in self.users:
                             if user['employee_id'] != dakoku_queue[-1]['employee_id'] and name_in_texts(user, recog_texts):
                                 dakoku_queue[-1] = {'employee_id': user['employee_id'],
                                                     'dakoku_attr': dakoku_queue[-1]['dakoku_attr'],
@@ -235,11 +235,8 @@ class reserve_dakoku:
 
                 sorted_result = sorted(recog_result['alternative'], key=lambda x: x['confidence']) if "confidence" in recog_result["alternative"] else recog_result['alternative']
                 recog_texts = [recog_elem['transcript'] for recog_elem in sorted_result]
-                
-                users_ref = self.user_db.collection(str(self.company_id))
-                users = [doc.to_dict() for doc in users_ref.get()]
 
-                for user in users:
+                for user in self.users:
                     if name_in_texts(user, recog_texts):
                         return user
 
