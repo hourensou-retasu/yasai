@@ -218,9 +218,11 @@ class reserve_dakoku:
 
             print("Say your name ...")
 
-            with self.mic as source:
-                self.r.adjust_for_ambient_noise(source)  # 雑音対策
-                audio = self.r.listen(source)
+            if len(self.sound_queue) == 0:
+                time.sleep(1)
+                continue
+
+            audio = self.sound_queue.popleft()
 
             print("Now to recognize it...")
 
