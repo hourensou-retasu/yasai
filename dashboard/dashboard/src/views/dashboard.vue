@@ -104,6 +104,9 @@
 </template>
 
 <style lang='scss'>
+table.table td, table.table th {
+  vertical-align: middle;
+}
 .employee-img {
   height: 10em;
   margin: 0 auto;
@@ -114,6 +117,9 @@
 }
 .input.set-month {
     width: 2em;
+}
+.file-label {
+  margin: 0 auto;
 }
 </style>
 
