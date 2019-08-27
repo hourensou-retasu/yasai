@@ -73,7 +73,7 @@ class reserve_dakoku:
             
                 # 打刻WORDにマッチ
                 if any(dakoku_results):
-                    user = self.fr.authorize()
+                    user = self.fr.authorize(num_trial=20)
                     
                     # マッチした打刻種類の最初のindexを取得 0:出勤 1:退勤 2:休憩始 3:休憩終
                     dakoku_attr = None
@@ -86,7 +86,8 @@ class reserve_dakoku:
                             
                     message = self.dakoku_message_dict[dakoku_attr] + ('、どちらさまですか' if user is None else '、' + user['last_name_kana'] + 'さん')
 
-                    message += '、' + mercy_message(dakoku_attr, user['emotion'])
+                    if user is not None:
+                        message += '、' + mercy_message(dakoku_attr, user['emotion'])
 
                     jtalk(message)
 
