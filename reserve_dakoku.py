@@ -8,7 +8,10 @@ import time
 from firestoreAPI import FireStoreDB
 from jaconv import kata2hira
 from freeeAPI import freeeAPI
+from collections import deque
+from threading import Thread
 
+MAX_NUM = 100
 
 class reserve_dakoku:
     def __init__(self):
@@ -18,6 +21,9 @@ class reserve_dakoku:
         self.user_db = FireStoreDB().db
 
         self.fr = face_emotion_recognizer.FaceEmotionRecognizer(self.user_db)
+
+        self.sound_queue = deque([])
+        self.listening_speaking_flg = False
         
         self.dakoku_patterns = [
             '.*?(おはよう).*',
@@ -42,16 +48,37 @@ class reserve_dakoku:
 
         self.company_id = freeeAPI().getCompanyID()
 
-    def reserve_dakoku(self, dakoku_queue):
+    def record(self):
+        print("Recording start")
 
         while True:
-            print("Say something ...")
+            print('record: sound_queue_size is {}'.format(len(self.sound_queue)))
 
             with self.mic as source:
-                self.r.adjust_for_ambient_noise(source) #雑音対策
-                audio = self.r.listen(source)
+                self.r.adjust_for_ambient_noise(source)  # 雑音対策
 
-            print ("Now to recognize it...")
+                while self.listening_speaking_flg:
+                    time.sleep(0.1)
+
+                self.listening_speaking_flg = True
+                audio = self.r.listen(source, phrase_time_limit=3)
+                self.listening_speaking_flg = False
+
+                self.sound_queue.append(audio)
+
+            # 録音キューが溢れそうなとき
+            if len(self.sound_queue) > MAX_NUM:
+                print('record(): too big sound queue... sleep...')
+                time.sleep(1)
+
+    def recognize(self, dakoku_queue):
+        print("Recognize start")
+
+        while True:
+            if len(self.sound_queue) == 0:
+                continue
+            
+            audio = self.sound_queue.popleft()
 
             try:
                 recog_result = self.r.recognize_google(
@@ -86,21 +113,22 @@ class reserve_dakoku:
                             
                     message = self.dakoku_message_dict[dakoku_attr] + ('、どちらさまですか' if user is None else '、' + user['last_name_kana'] + 'さん')
 
-                    message += '、' + mercy_message(dakoku_attr, user['emotion'])
+                    if user is not None:
+                        message += '、' + mercy_message(dakoku_attr, user['emotion'])
 
-                    jtalk(message)
+                    self.speak(message)
 
                     if user is None:
                         user = self.detect_unknown_visitor()
 
                         # また失敗したとき
                         if user is None:
-                            jtalk('登録されたユーザを認識できませんでした')
+                            self.speak('登録されたユーザを認識できませんでした')
                             continue
 
                         message = '{}さんの{}を打刻します'.format(
                             user['last_name_kana'], self.dakoku_attr_str[dakoku_attr])
-                        jtalk(message)
+                        self.speak(message)
 
                     dakoku_queue.append({'employee_id':user['employee_id'], 'dakoku_attr':dakoku_attr, 'time':time.time()})
 
@@ -110,16 +138,28 @@ class reserve_dakoku:
                     users = [doc.to_dict() for doc in users_ref.get()]
 
                     # 前回打刻されたユーザを除き、登録ユーザ名が発話に含まれるか否か
-                    for user in users:
-                        if len(dakoku_queue):
+                    if len(dakoku_queue):
+                        detect_flg = False
+
+                        for user in users:
                             if user['employee_id'] != dakoku_queue[-1]['employee_id'] and name_in_texts(user, recog_texts):
                                 dakoku_queue[-1] = {'employee_id': user['employee_id'],
-                                                     'dakoku_attr': dakoku_queue[-1]['dakoku_attr'],
-                                                      'time': time.time()}
+                                                    'dakoku_attr': dakoku_queue[-1]['dakoku_attr'],
+                                                    'time': time.time()}
 
                                 message = '{}さんの{}を打刻します'.format(
                                     user['last_name_kana'], self.dakoku_attr_str[dakoku_queue[-1]['dakoku_attr']])
-                                jtalk(message)
+
+                                detect_flg = True
+                                self.speak(message)
+                                break
+
+                        if not detect_flg:
+                            continue
+                    
+                    else:
+                        continue
+
 
             # 以下は認識できなかったときに止まらないように。
             except sr.UnknownValueError:
@@ -130,6 +170,33 @@ class reserve_dakoku:
             except ValueError as e:
                 print(e)
 
+
+    def reserve_dakoku(self, dakoku_queue):
+
+        record_thread = Thread(target=self.record)
+        recognize_thread = Thread(target=self.recognize, args=(dakoku_queue,))
+        record_thread.daemon = True
+        recognize_thread.daemon = True
+
+        record_thread.start()
+        recognize_thread.start()
+
+        while True:
+            time.sleep(10)
+
+    def speak(self, message):
+        # 録音終了まで待機
+        while self.listening_speaking_flg:
+            time.sleep(0.1)
+
+        self.listening_speaking_flg = True
+        sec = jtalk(message)
+
+        # システム発話終了まで待機
+        time.sleep(sec)
+        self.listening_speaking_flg = False
+
+        
 
     # 顔認証で失敗したユーザに対して、名前をもとに判別
     def detect_unknown_visitor(self):

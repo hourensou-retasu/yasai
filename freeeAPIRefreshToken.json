@@ -1,0 +1,7 @@
+{
+  "grant_type": "refresh_token",
+  "client_id": "6e4d11db5993f17638e620aae1f25a38c5c95dcdb0c825d1432994ab1d2b0fc0",
+  "client_secret": "ce92bc7db869a5e00f00305c3ff7a4c3cda19d15d3f425c6619f04b9b1547b92",
+  "refresh_token": "47b7741f8f642c25a8241a577b642d88cd6d22b16993e25b99a7d3ed8f065f5b",
+  "redirect_uri": "urn:ietf:wg:oauth:2.0:oob"
+}
