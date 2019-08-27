@@ -178,9 +178,8 @@ class reserve_dakoku:
             except sr.RequestError as e:
                 print(
                     "Could not request results from Google Speech Recognition service; {0}".format(e))
-            except ValueError as e:
+            except Exception as e:
                 print(e)
-
 
     def reserve_dakoku(self, dakoku_queue):
 
@@ -195,13 +194,13 @@ class reserve_dakoku:
         while True:
             time.sleep(10)
 
-    def speak(self, message):
+    def speak(self, message, wait_time=0.5):
         # 録音終了まで待機
         while self.listening_speaking_flg:
             time.sleep(0.1)
 
         self.listening_speaking_flg = True
-        sec = jtalk(message)
+        sec = jtalk(message) + wait_time
 
         # システム発話終了まで待機
         time.sleep(sec)
