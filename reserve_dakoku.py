@@ -211,15 +211,13 @@ class reserve_dakoku:
 
     # 顔認証で失敗したユーザに対して、名前をもとに判別
     def detect_unknown_visitor(self):
-        try_cnt = 0
+        start = time.time()
 
-        while try_cnt < 3:
-            try_cnt += 1
+        print('say your name...')
 
-            print("Say your name ...")
-
+        while time.time() - start < 10:
             if len(self.sound_queue) == 0:
-                time.sleep(1)
+                time.sleep(0.1)
                 continue
 
             audio = self.sound_queue.popleft()
