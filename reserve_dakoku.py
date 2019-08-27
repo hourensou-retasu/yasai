@@ -32,6 +32,8 @@ class reserve_dakoku:
             '.*?(休憩).*?(上がり|いただきました).*'
         ]
 
+        self.cancel_pattern = '.*?(キャンセル).*'
+
         self.dakoku_message_dict = {
             0: 'おはようございます',
             1: 'おつかれさまでした',
@@ -131,6 +133,10 @@ class reserve_dakoku:
                         self.speak(message)
 
                     dakoku_queue.append({'employee_id':user['employee_id'], 'dakoku_attr':dakoku_attr, 'time':time.time()})
+
+                # 削除フロー
+                elif re.match(self.cancel_pattern, recog_text):
+                    dakoku_queue.pop()
 
                 # 訂正フロー
                 else:
