@@ -16,13 +16,15 @@ def refreshToken():
   print(r.text)
   
   if r.status_code == 401:
-    return
+    raise Exception('トークンを更新できません。認可コードを取り直してください。')
 
   with open("freeeAPIAccessToken", "w") as f:
     f.write(r.json()["access_token"])
 
   with open("freeeAPIRefreshToken", "w") as f:
     f.write(r.json()["refresh_token"])
+
+  return r.json()["access_token"]
 
 if __name__ == "__main__":
   refreshToken()

@@ -9,9 +9,7 @@ class freeeAPI:
     with open("./freeeAPIAccessToken") as f:
       accessToken = f.read()
 
-    self.headers = {
-      "Authorization": f'Bearer { accessToken }'
-    }
+    self.headers = self.__getHeaders(accessToken)
 
     self.APIbaseURL = "https://api.freee.co.jp/hr/api/v1"
 
@@ -19,22 +17,30 @@ class freeeAPI:
     res = requests.get(url, headers=self.headers)
 
     if res.status_code == 401:
-      refreshToken()
+      accessToken = refreshToken()
+      self.headers = self.__getHeaders(accessToken)
       res = requests.get(url, headers=self.headers)
 
     self.companyID = res.json()["companies"][0]["id"]
 
+  def __getHeaders(self, accessToken):
+    return {
+      "Authorization": f'Bearer { accessToken }'
+    }
+
   def __doGET(self, url):
     res = requests.get(url, headers=self.headers)
     if res.status_code == 401:
-      refreshToken()
+      accessToken = refreshToken()
+      self.headers = self.__getHeaders(accessToken)
       res = requests.get(url, headers=self.headers)
     return res.json()
 
   def __doPOST(self, url, data):
     res = requests.post(url, headers=self.headers, json=data)
     if res.status_code == 401:
-      refreshToken()
+      accessToken = refreshToken()
+      self.headers = self.__getHeaders(accessToken)
       res = requests.get(url, headers=self.headers)
     return res.json()
 
