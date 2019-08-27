@@ -136,7 +136,12 @@ class reserve_dakoku:
 
                 # 削除フロー
                 elif re.match(self.cancel_pattern, recog_text):
-                    dakoku_queue.pop()
+                    if len(dakoku_queue) != 0:
+                        self.speak('打刻をキャンセルします')
+                        dakoku_queue.pop()
+                        continue
+                    else:
+                        continue
 
                 # 訂正フロー
                 else:
