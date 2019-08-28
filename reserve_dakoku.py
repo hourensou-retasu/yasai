@@ -178,8 +178,6 @@ class reserve_dakoku:
             except sr.RequestError as e:
                 print(
                     "Could not request results from Google Speech Recognition service; {0}".format(e))
-            except Exception as e:
-                print(e)
 
     def reserve_dakoku(self, dakoku_queue):
 
