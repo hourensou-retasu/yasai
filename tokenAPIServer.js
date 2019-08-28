@@ -2,6 +2,12 @@ const express = require('express')
 const axios = require('axios')
 const fs = require('fs')
 const cors = require('cors')
+const history = require('connect-history-api-fallback')
+
+const staticApp = express()
+staticApp.use(history)
+staticApp.use(express.static('./dashboard/dashboard/dist'))
+staticApp.listen(8080)
 
 const app = express()
 

@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <nav
+      id="nav"
       class="navbar"
       role="navigation"
       aria-label="main navigation"
@@ -53,7 +54,8 @@
   color: #2c3e50;
 }
 #nav {
-  padding: 30px;
+  box-shadow: 0px 1px 5px #ccc;
+  margin-bottom: 1em;
   a {
     font-weight: bold;
     color: #2c3e50;
