@@ -148,9 +148,10 @@ class FaceEmotionRecognizer:
     def fetch_known_faces(self):
         users_ref = self.db.collection(str(self.company_id))
         records = [doc.to_dict() for doc in users_ref.get()]
-        face_imgs = [self.load_img_from_url(record['img_url']) for record in records]
+        records_with_img = [record for record in records if 'img_url' in record.keys()]
+        face_imgs = [self.load_img_from_url(record['img_url']) for record in records_with_img]
         face_features = [face_recognition.face_encodings(img)[0] for img in face_imgs]
-        return records, face_features
+        return records_with_img, face_features
 
     def _init_emoclf(self):
         global graph
