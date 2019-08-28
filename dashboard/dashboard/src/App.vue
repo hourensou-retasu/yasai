@@ -71,7 +71,7 @@ import "@fortawesome/fontawesome-free/js/all.js";
 export default {
   computed: {
     isLoggedIn() {
-      return !localStorage.getItem('accessToken')
+      return !localStorage.accessToken
     }
   }
 };
