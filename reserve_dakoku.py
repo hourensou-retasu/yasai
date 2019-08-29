@@ -91,26 +91,30 @@ class reserve_dakoku:
                     if user is not None:
                         message += '、' + mercy_message(dakoku_attr, user['emotion'])
 
-                    jtalk(message)
+                    sec = jtalk(message)
+                    time.sleep(sec)
 
                     if user is None:
                         user = self.detect_unknown_visitor()
 
                         # また失敗したとき
                         if user is None:
-                            jtalk('登録されたユーザを認識できませんでした')
+                            sec = jtalk('登録されたユーザを認識できませんでした')
+                            time.sleep(sec)
                             continue
 
                         message = '{}さんの{}を打刻します'.format(
                             user['last_name_kana'], self.dakoku_attr_str[dakoku_attr])
-                        jtalk(message)
+                        sec = jtalk(message)
+                        time.sleep(sec)
 
                     dakoku_queue.append({'employee_id':user['employee_id'], 'dakoku_attr':dakoku_attr, 'time':time.time()})
 
                 # 削除フロー
                 elif re.match(self.cancel_pattern, recog_text):
                     if len(dakoku_queue) != 0:
-                        jtalk('打刻をキャンセルします')
+                        sec = jtalk('打刻をキャンセルします')
+                        time.sleep(sec)
                         dakoku_queue.pop()
                         continue
                     else:
@@ -131,7 +135,8 @@ class reserve_dakoku:
 
                                 message = '{}さんの{}を打刻します'.format(
                                     user['last_name_kana'], self.dakoku_attr_str[dakoku_queue[-1]['dakoku_attr']])
-                                jtalk(message)
+                                sec = jtalk(message)
+                                time.sleep(sec)
 
             # 以下は認識できなかったときに止まらないように。
             except sr.UnknownValueError:

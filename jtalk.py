@@ -1,5 +1,6 @@
 import subprocess
 from datetime import datetime
+from pydub import AudioSegment
 
 def jtalk(t):
     open_jtalk = ['open_jtalk']
@@ -15,6 +16,12 @@ def jtalk(t):
     aplay = ['afplay', 'out.wav']
     wr = subprocess.Popen(aplay)
 
+    # 音声ファイルの読み込み
+    sound = AudioSegment.from_file("out.wav", "wav")
+
+    # 情報の取得
+    return sound.duration_seconds  # 再生時間(秒)
+    
 def say_datetime():
     d = datetime.now()
     text = '%s月%s日、%s時%s分%s秒' % (d.month, d.day, d.hour, d.minute, d.second)
