@@ -40,16 +40,16 @@
       <thead>
         <tr>
           <th class="has-text-centered">
-            employee_id
+            従業員ID
           </th>
           <th class="has-text-centered">
-            last_name_kanji
+            姓
           </th>
           <th class="has-text-centered">
-            first_name_kanji
+            名
           </th>
           <th class="has-text-centered">
-            img
+            画像
           </th>
         </tr>
       </thead>
