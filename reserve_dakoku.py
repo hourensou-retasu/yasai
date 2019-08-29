@@ -47,7 +47,7 @@ class reserve_dakoku:
     def reserve_dakoku(self, dakoku_queue):
 
         while True:
-            print("待受中")
+            print("\n待受中")
 
             with self.mic as source:
                 self.r.adjust_for_ambient_noise(source) #雑音対策
@@ -147,8 +147,6 @@ class reserve_dakoku:
                     "音声認識のリクエストが正常に完了しませんでした; {0}".format(e))
             except ValueError as e:
                 print(e)
-
-            print('\n')
 
 
     # 顔認証で失敗したユーザに対して、名前をもとに判別
