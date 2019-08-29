@@ -7,7 +7,7 @@ const history = require('connect-history-api-fallback')
 const staticApp = express()
 staticApp.use(history)
 staticApp.use(express.static('./dashboard/dashboard/dist'))
-staticApp.listen(8080)
+// staticApp.listen(8080)
 
 const app = express()
 
