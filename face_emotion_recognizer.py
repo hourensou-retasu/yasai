@@ -51,7 +51,6 @@ class FaceEmotionRecognizer:
                     detected = True
                     detected_name = name.copy()
                     emotion = self.recognize_posneg(small_frame, face_locations[i])
-                    print(emotion)
                     detected_name['emotion'] = emotion
                     break
 
@@ -62,6 +61,10 @@ class FaceEmotionRecognizer:
                 break
 
         if detected:
+            print('ユーザ: {}, 感情: {}'.format(
+                detected_name['last_name_kanji'] + ' ' + detected_name['first_name_kanji'],
+                detected_name['emotion']
+            ))
             return detected_name
         else:
             return None
