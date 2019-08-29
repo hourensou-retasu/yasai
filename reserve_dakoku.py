@@ -47,18 +47,20 @@ class reserve_dakoku:
     def reserve_dakoku(self, dakoku_queue):
 
         while True:
-            print("Say something ...")
+            print("待受中")
 
             with self.mic as source:
                 self.r.adjust_for_ambient_noise(source) #雑音対策
                 audio = self.r.listen(source)
 
-            print ("Now to recognize it...")
+            print ("処理中)
 
             try:
+                now = time.time()
                 recog_result = self.r.recognize_google(
                     audio, language='ja-JP', show_all=True)
                 print(recog_result)
+                print('音声認識時間: {:.3g}秒'.format(time.time() - now))
 
                 # 音声認識がうまくいってないとき
                 if not isinstance(recog_result, dict) or len(recog_result.get("alternative", [])) == 0:
@@ -69,7 +71,6 @@ class reserve_dakoku:
                 recog_texts = [recog_elem['transcript']
                                for recog_elem in sorted_result]
                 recog_text = recog_texts[0]
-                print(recog_text)
 
                 dakoku_results = [re.match(dakoku_pattern, recog_text) for dakoku_pattern in self.dakoku_patterns]
             
@@ -146,6 +147,8 @@ class reserve_dakoku:
                     "Could not request results from Google Speech Recognition service; {0}".format(e))
             except ValueError as e:
                 print(e)
+
+            print('\n')
 
 
     # 顔認証で失敗したユーザに対して、名前をもとに判別
