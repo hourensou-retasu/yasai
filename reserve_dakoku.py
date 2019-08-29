@@ -51,7 +51,7 @@ class reserve_dakoku:
 
             with self.mic as source:
                 self.r.adjust_for_ambient_noise(source) #雑音対策
-                audio = self.r.listen(source)
+                audio = self.r.listen(source, phrase_time_limit=5)
 
             print ("処理中")
 
