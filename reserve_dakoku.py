@@ -53,7 +53,7 @@ class reserve_dakoku:
                 self.r.adjust_for_ambient_noise(source) #雑音対策
                 audio = self.r.listen(source)
 
-            print ("処理中)
+            print ("処理中")
 
             try:
                 now = time.time()
@@ -141,10 +141,10 @@ class reserve_dakoku:
 
             # 以下は認識できなかったときに止まらないように。
             except sr.UnknownValueError:
-                print("could not understand audio")
+                print("音声を認識できませんでした")
             except sr.RequestError as e:
                 print(
-                    "Could not request results from Google Speech Recognition service; {0}".format(e))
+                    "音声認識のリクエストが正常に完了しませんでした; {0}".format(e))
             except ValueError as e:
                 print(e)
 
@@ -158,13 +158,13 @@ class reserve_dakoku:
         while try_cnt < 3:
             try_cnt += 1
 
-            print("Say your name ...")
+            print("待受中")
 
             with self.mic as source:
                 self.r.adjust_for_ambient_noise(source)  # 雑音対策
                 audio = self.r.listen(source)
 
-            print("Now to recognize it...")
+            print("処理中")
 
             try:
                 recog_result = self.r.recognize_google(audio, language='ja-JP', show_all=True)
@@ -187,10 +187,10 @@ class reserve_dakoku:
 
             # 以下は認識できなかったときに止まらないように。
             except sr.UnknownValueError:
-                print("could not understand audio")
+                print("音声を認識できませんでした")
             except sr.RequestError as e:
                 print(
-                    "Could not request results from Google Speech Recognition service; {0}".format(e))
+                    "音声認識のリクエストが正常に完了しませんでした; {0}".format(e))
 
         return None
 
@@ -214,7 +214,7 @@ def mercy_message(attr, emotion):
     elif attr == 3:
         return '' if emotion == 1 else '無理しないで下さい'
     else:
-        raise ValueError('error: attr is invalid')
+        raise ValueError('打刻種類が不正な値です')
         
 
 
